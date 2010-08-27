@@ -5,24 +5,39 @@
 
 using namespace std ;
 
-#define POPMAX 600000
-#define T_MAX  5000
+#define POPMAX 190000       //600000 // 
+#define T_MAX  900
+#define X_MAX  144         //144//
+#define Y_MAX  120         //120//
 
-#define ALPHA      0.750
+
+#define k           0.85    // Lorna DEB parm //
+#define Pam          390    // Lorna DEB parm //
+#define pm          19.4    // Lorna DEB parm //
+#define Em          2500    // Lorna DEB parm //
+#define Eg          5600    // Lorna DEB parm //
+#define TA          7000    // Lorna DEB parm //
+#define Tref         283    // Lorna DEB parm //
+#define TAlow      50000    // Lorna DEB parm //
+#define TL           277    // Lorna DEB parm //
+#define TAhigh    100000    // Lorna DEB parm //
+#define TH           297    // Lorna DEB parm //
+#define m          0.219    // Lorna DEB parm //
+#define foodh   0.000069    // Lorna DEB parm //
+
 #define BETA       3.000
-#define k          0.010    // Fulton factor //
+
 #define O_f       -1.340    // PMRN slope //
 #define O_m       -0.500    
-#define R1ple      9.0E2    // stock recruitment parameters //
-#define R2ple      3.0E3     // stock recruitment parameters //
+#define R1ple      9.0E2    // stock recruitment parameters, This means that max 900 individuals are born (being 900 million individuals in field), matches up with weights//
+#define R2ple      3.0E3    // stock recruitment parameters //
 #define R1sol      9.0E2    // stock recruitment parameters //
-#define R2sol      3.0E3     // stock recruitment parameters //
+#define R2sol      3.0E3    // stock recruitment parameters //
 #define OMEGA      2.275598 // PMRN vertical width //
-#define M_B        0.055    // baseline mortality (old) //
-#define b          0.600    
-#define a          5.500    // potential genotypic energy acquisition // 
-#define ETA       -0.250 
-#define F_MAX      1.5      // fishing mortality //
+#define M_B        1.5E-4   // baseline mortality (old) divided by 365 to go to days //
+
+#define ETA       -0.280 
+#define F_MAX      0.0      // fishing mortality //
 #define PI         0.5938   // fishing selectivity constant //
 #define LAMBDAple  2.200    // mesh size selection factor //
 #define LAMBDAsol  2.200    // mesh size selection factor //
@@ -33,6 +48,8 @@ using namespace std ;
 #define U_M        14.60    // intercept PMR by sex //
 #define U_F        24.70    // intercept PMRN by sex //
 
+typedef float    (*FTYPE)[X_MAX][Y_MAX];
+
 class ind
 {
       public:     
@@ -40,16 +57,18 @@ class ind
        double Lp50()   ;
        double u()      ;
         
-       int age ;
-       char sex ;        // 1= male, 2=female //
-       char stage ;      // stage1= immature, stage 2= mature, stage 3&4 : dead, stage3 = fishing, stage4 = natural//
+       int    age ;       // age in days
+       char   sex ;       // 1= male, 2=female //
+       char   stage ;     // stage1= immature, stage 2= mature, stage 3&4 : dead, stage3 = fishing, stage4 = natural//
        double weight ;
-       double u_m ;     // intercept PMRN by sex //
-       double u_f ;
+       double u_m ;       // intercept PMRN by sex  (males)  //
+       double u_f ;       // intercept PMRN by sex  (females //  
       
-       int X ;     // reproductive investment rate by sex //
-       int Y ;     
-};
+       int    X ;         // current Xpos //
+       int    Y ;         // current Xpos //
+       char   Xdir[550] ; // strategy, which direction does fish go, chosen every 10 days (to reduce lenght of vector) length= 365*15/10=550)  
+       char   Ydir[550] ; // strategy, which direction does fish go, chosen every 10 days (to reduce lenght of vector) length= 365*15/10=550)    
+}; 
 
 double ind::u()
 {  
@@ -59,14 +78,14 @@ double ind::u()
 
 double ind::length()
 { 
-   return  pow(weight / k, (1/BETA)) ;   
+   return (pow(weight,(1/3))/m) ;  /* This now comes from Lornas R file, TO BE FIXED, INSTEAD OF WEIGHT LORNA USES V (volume) */   
 }
 double ind::Lp50()
 { 
    double O_p  ;  
    if (sex == 1) {O_p = O_m ; } 
    else          {O_p = O_f ; }
-   return u() + O_p * age ;   
+   return u() + O_p * (age/365) ; // not sure if division by 365 is the most correct/convenient way, but I changed age to be days instead years)  
 }
 
 
@@ -77,7 +96,6 @@ class cell
 {
   public:
   double kg_sol()   ;
-
   double effort;
   double depth; 
   double kg_sol1;
@@ -88,28 +106,41 @@ class cell
 double cell::kg_sol(){ 
   return kg_sol1 + kg_sol2 + kg_sol3; 
 }
-
-void   move          (struct ind x[], int Indvs) ; 
-void   growth        (struct ind x[], int Indvs, double B) ;
-void   age           (struct ind x[], int Indvs)            ;
-void   maturation    (struct ind x[], int Indvs)           ;
-void   mortality     (struct ind x[], double lambda, int Indvs, double B );
-void   output        (struct ind x[], int t, int number);
-int    alive2front   (struct ind x[])                       ;
-int    reproduction  (struct ind x[], double R1, double R2, int Indvs, double Bspawn);
-void   aggregate     (struct cell g[][30], struct ind x[], int Indvs); 
-double rnorm         (double mu, double sd)                 ;      // function random 
-double max           (double first, double second)          ;      // function max 
-double min           (double first, double second)          ;      // function min 
-double rand_sex      ();
+void   move                 (struct ind x[], int Indvs) ; 
+void   growth               (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp) ;
+void   age                  (struct ind x[], int Indvs)            ;
+void   maturation           (struct ind x[], int Indvs)           ;
+void   mortality            (struct ind x[], double lambda, int Indvs, double B );
+void   output               (struct ind x[], int t, int number);
+int    alive2front          (struct ind x[])                       ;
+int    reproduction         (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp);
+void   aggregate            (struct cell g[][30], struct ind x[], int Indvs); 
+void   readgrid             (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
+double rnorm                (double mu, double sd)                 ;      // function random 
+double max                  (double first, double second)          ;      // function max 
+double min                  (double first, double second)          ;      // function min 
+double rand_sex             ();
 
 
 int main (){   
  double Btotalple, Bnurseple, Bspawnple, Btotalsol, Bnursesol, Bspawnsol ;    /* biomass on nursery, total biomass */
- int aliveple = POPMAX, alivesol = POPMAX; 
 
- cell grid[30][30];
+ FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood) * 365);
+ FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp) * 365);
 
+ fstream GridFood ("D:\\svnjjp\\data\\food.dat", ios::in);
+ fstream GridTemp ("D:\\svnjjp\\data\\temp.dat", ios::in);
+ //fstream GridFood ("media/n/Projecten/SpatialPlanning/svnjjp/data/food.dat", ios::in);
+ //fstream GridTemp ("media/n/Projecten/SpatialPlanning/svnjjp/data/temp.dat", ios::in);
+
+ cell grid[X_MAX][Y_MAX];
+
+ readgrid(&GridFood , X_MAX, Y_MAX, 365, theFood);
+ cout << "thefood pos d16,x50,y60 " << theFood[15][49][59]<<" should be 0.888712 "  << endl;
+ 	
+ readgrid(&GridTemp , X_MAX, Y_MAX, 365, theTemp);	
+ cout << "theTemp pos d16,x50,y60 " << theTemp[15][49][59]<<" should be 7.362849 "  << endl;
+ 
  /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
 
   for(int i=0; i < POPMAX; i++) {
@@ -120,13 +151,23 @@ int main (){
       ple[i].sex    = 1;
       ple[i].weight = 60 ;
     }  
-      ple[i].stage  = 1 ; /* everybody should be mature */
-      ple[i].age    = 1 ;
-      ple[i].u_m    = U_M ;
-      ple[i].u_f    = U_F;
-      ple[i].X      = 15 ;
-      ple[i].Y      = 15 ;
+    ple[i].stage  = 1 ; /* everybody should be mature */
+    ple[i].age    = 1 ;
+    ple[i].u_m    = U_M ;
+    ple[i].u_f    = U_F;
+    ple[i].X      = 50 ;
+    ple[i].Y      = 60 ;
+    int X =ple[i].X ;
+    int Y =ple[i].Y ; 
+    for(int dd=0; dd < 550; dd++){    
+        do{ple[i].Xdir[dd] = (char)( (rand()% 11) -5);
+           ple[i].Ydir[dd] = (char)( (rand()% 11) -5);
+        } while (theTemp[1][X + (int) ple[i].Xdir[dd]][Y + (int) ple[i].Ydir[dd] ] < -15 ||( X + (int) ple[i].Xdir[dd]) <0 || X + (int) ple[i].Xdir[dd] > X_MAX || Y + (int) ple[i].Ydir[dd] < 0 || Y + (int) ple[i].Ydir[dd] > Y_MAX);
+        X = X + (int) ple[i].Xdir[dd];
+        Y = Y + (int) ple[i].Ydir[dd];
+    }
   }
+  cout << "init plepop done" << endl;
   
   for(int i=0; i < POPMAX; i++){
     if( i > POPMAX/2)    {
@@ -136,72 +177,103 @@ int main (){
       sol[i].sex    = 1;
       sol[i].weight = 60 ;
     }  
-      sol[i].stage  = 1 ; /* everybody should be mature */
-      sol[i].age    = 1 ;
-      sol[i].u_m    = U_M ;
-      sol[i].u_f    = U_F;
-      sol[i].X      = 15 ;
-      sol[i].Y      = 15 ;
-  }
-  
+    sol[i].stage  = 1 ; /* everybody should be mature */
+    sol[i].age    = 1 ;
+    sol[i].u_m    = U_M ;
+    sol[i].u_f    = U_F;
+    sol[i].X      = 50 ;
+    sol[i].Y      = 60 ;
+    int X =sol[i].X ;
+    int Y =sol[i].Y ; 
+    for(int dd=0; dd < 550; dd++){
+        do{sol[i].Xdir[dd] = (char)( (rand()% 11) -5);
+           sol[i].Ydir[dd] = (char)( (rand()% 11) -5);
+        } while( theTemp[1][X + (int) sol[i].Xdir[dd]][Y + (int) sol[i].Ydir[dd] ] < -15  ||( X + (int) sol[i].Xdir[dd])<0 || (X + (int) sol[i].Xdir[dd]) > X_MAX || (Y + (int) sol[i].Ydir[dd]) < 0 ||( Y + (int) sol[i].Ydir[dd]) > Y_MAX);
+        X = X + (int) sol[i].Xdir[dd];
+        Y = Y + (int) sol[i].Ydir[dd];
+    }
+  }                                                           // end for loop over individuals /
+  cout << "init solpop done" << endl;
+
+  int aliveple = POPMAX, alivesol = POPMAX; 
 
   /* START SIM */
   for(int t = 0; t < T_MAX; t++){    
 
     /* INITIALISE GRID IN EACH TIMESTEP */
  
-    for(int xx=0; xx < 30; xx++) {
-      for(int yy=0; yy < 30; yy++) {
-        grid[xx][yy].effort= 0;
-        grid[xx][yy].kg_sol1 = 0 ;
-        grid[xx][yy].kg_sol2 = 0 ;
-        grid[xx][yy].kg_sol3 = 0 ;
+    for(int xx=0; xx < X_MAX; xx++) {
+      for(int yy=0; yy < Y_MAX; yy++) {
+          grid[xx][yy].effort= 0;
+          grid[xx][yy].kg_sol1 = 0 ;
+          grid[xx][yy].kg_sol2 = 0 ;
+          grid[xx][yy].kg_sol3 = 0 ; 
       }
     }
 
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;
         
-    for(int n = 0 ; n < POPMAX ; n++) {
+    for(int n = 0 ; n < aliveple ; n++) {
         if (ple[n].stage < 3 ) {
             Btotalple  += ple[n].weight ; 
             if (ple[n].stage < 2 ) Bnurseple += ple[n].weight;
         }        
     } 
-    Bspawnple =  Btotalple - Bnurseple;
-    
-    for(int n = 0 ; n < POPMAX ; n++) {
+     
+    for(int n = 0 ; n < alivesol ; n++) {
         if (sol[n].stage < 3 ) {
             Btotalsol  += sol[n].weight ; 
             if (sol[n].stage < 2 ) Bnursesol += sol[n].weight;
         }        
     } 
+    
+    Bspawnple =  Btotalple - Bnurseple;
     Bspawnsol =  Btotalsol - Bnursesol;
-    
-    cout<<  Bspawnple<< " "<<Bspawnsol << endl; 
 
-    move       (ple, aliveple) ; 
-    growth     (ple, aliveple, Bnurseple) ;                                    // Function of growth //   
-    age        (ple, aliveple)    ;                                            // Function of ageing //
-    maturation (ple, aliveple)   ;                                             // Function of maturation //
-    mortality  (ple, LAMBDAple, aliveple ,Bnurseple ) ;                        // Function mortality //
+    if (t%10 == 0 ) move(ple, aliveple) ;                                            // Move individuals every tenth timestep //
+    if (t%10 == 0 ) move(sol, alivesol);                                             // Move individuals every tenth timestep //  
+ 
+    age        (ple, aliveple)    ;                                                  // Function of ageing //
+    age        (sol, alivesol)    ;                                                  // Function of ageing //    
+ 
+    mortality(ple, LAMBDAple, aliveple ,Bnurseple ) ;                                // Function mortality //
+    mortality(sol, LAMBDAsol, alivesol ,Bnursesol ) ;                                // Function mortality */
     
-    move       (sol, alivesol);
-    growth     (sol, alivesol, Bnursesol) ;                                    // Function of growth //    
-    age        (sol, alivesol)    ;                                            // Function of ageing //    
-    maturation (sol, alivesol)   ;                                             // Function of maturation //
-    mortality  (sol, LAMBDAsol, alivesol ,Bnursesol ) ;                        // Function mortality */
+    growth     (ple, aliveple, Bnurseple, t % 365, theFood, theTemp) ;               // Function of growth //   
+    growth     (sol, alivesol, Bnursesol, t % 365, theFood, theTemp) ;               // Function of growth //    
+ 
+    maturation (ple, aliveple)   ;                                                   // Function of maturation //
+    maturation (sol, alivesol)   ;                                                   // Function of maturation //
     
-    cout<< Bspawnple<<endl;
-    output     (ple,t, 40);
-    cout<< Bspawnsol<<endl;
-    output     (sol,t, 40);
+    cout<<"ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; output(ple,t, 10);  // Write biomass and number to screen, followed by data for 10 indivuals // 
+    cout<<"ssb sol " << Bspawnsol<<" num sol "<<alivesol<< endl; output(sol,t, 10);  // Write biomass and number to screen, followed by data for 10 indivuals //
   
-    aliveple = alive2front (ple)       ;                                       // shuffle so that alives are in front*/
-    aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple);           // Function of reproduction */
-    alivesol = alive2front (sol)       ;                                       // shuffle so that alives are in front*/
-    alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol);           // Function of reproduction */
+    aliveple = alive2front (ple)       ;                                             // shuffle so that alives are in front*/
+    alivesol = alive2front (sol)       ;                                             // shuffle so that alives are in front*/
+
+    if(t%365 == 30) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp); // Function of reproduction */
+    if(t%365 == 30) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction */
   }  
+  
+  
+  ofstream myfile;
+  myfile.open ("d:\\testoutputspat.csv" );
+  
+  double tw=0;
+  for(int nn = 0 ; nn < aliveple ; nn++) {
+     int X=50;
+     int Y=60;
+     if (ple[nn].weight > tw){
+       tw=ple[nn].weight; 
+       for(int dd=0; dd < 550; dd++){
+         X = X + ple[nn].Xdir[dd];
+         Y = Y + ple[nn].Ydir[dd];
+         myfile << nn <<"," << (int) ple[nn].sex <<","<< dd <<"," << X<<","<<Y <<"," << ple[nn].weight <<   endl;
+       }
+     }  
+  }
+  myfile.close() ;
   return 0 ;  
 } 
 
@@ -210,17 +282,21 @@ void age (struct ind x[], int Indvs){
 }     
 
 void move (struct ind x[], int Indvs){ 
-    
-  for(int n = 0 ; n < Indvs ; n++){	  
-    x[n].X += rnorm(0,2)    ;
-    x[n].Y += rnorm(0,2)    ;        
+  for(int nn = 0 ; nn < Indvs ; nn++){	  
+    x[nn].X += (int) x[nn].Xdir[(int) (x[nn].age/10)] ; 
+    x[nn].Y += (int) x[nn].Ydir[(int) (x[nn].age/10)] ;         
   }                                                           // end for loop over individuals //
 }  
 
-void growth (struct ind x[], int Indvs, double B){
+void growth (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp){
  
-  for(int n = 0 ; n < Indvs ; n++)	  
-    x[n].weight = pow( a/b  - (a/b - pow(x[n].weight, 1 - ALPHA))*exp(-b *( 1- ALPHA)), 1/(1-ALPHA))  ; 
+  for(int n = 0 ; n < Indvs ; n++){	  
+    x[n].weight  = x[n].weight + ((k*((46*food[tofy][x[n].X][x[n].Y])/(foodh+(46*food[tofy][x[n].X][x[n].Y])))*(Pam*(exp((TA/Tref)-(TA/(273+(temp[tofy][x[n].X][x[n].Y]+0))))
+                *((1+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1*x[n].length() )))-(TAhigh/Tref)))
+                /(1+exp((TAlow/(273+(temp[tofy][x[n].X][x[n].Y]+0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1*x[n].length() )))-(TAhigh/(273+(temp[tofy][x[n].X][x[n].Y]+0)))))))))
+                *pow( pow((m* x[n].length()  ),3),(2/3))   -((pm*(exp((TA/Tref)-(TA/(273+(temp[tofy][x[n].X][x[n].Y]+0))))))*(pow((m*x[n].length()),3))))/
+                ((k*((46*food[tofy][x[n].X][x[n].Y])/(foodh+(46*food[tofy][x[n].X][x[n].Y])))*Em)+Eg);
+  }                
 }      
     
 void maturation (struct ind x[], int Indvs){  
@@ -240,7 +316,7 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
   for(int n = 0 ; n < Indvs ; n++)  {
     if (x[n].stage <3)    {
                                                                  // Natural mortality 
-      m_p     = pow(x[n].weight , ETA) ;                         // predation mortality due to foraging   
+      m_p     = (pow(x[n].weight , ETA)/365) ;                         // predation mortality due to foraging   
       M_tot   = M_B +  m_p  ;                                    // TOTAL natural mortality = background + predation mortality    
                                                                  // Fishing mortality NOTE SHOULD DEPEND ON LOCATION 
       F       = F_MAX / ( 1 + exp(- PI * (x[n].length() - LAMBDA * S_mesh))) ;  
@@ -256,7 +332,7 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
   }
 }
 
-int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB){
+int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, FTYPE temp){
 
   int N_r = (int) ( R1* SSB / (R2 + SSB )) ; /*NOTE SSB IS SCALED */
   if (N_r > 0 ){
@@ -267,8 +343,17 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB){
       x[nu].weight = EGGWGHT;
       x[nu].u_m    = U_M ;			
       x[nu].u_f    = U_F ; 
-      x[nu].X      = 15 ;
-      x[nu].Y      = 15 ;
+      x[nu].X      = 50 ;
+      x[nu].Y      = 60 ;
+      int X        = x[nu].X ;
+      int Y        = x[nu].Y ; 
+      for(int dd=0; dd < 550; dd++){    
+        do{x[nu].Xdir[dd] = (char)( (rand()% 11) -5);
+           x[nu].Ydir[dd] = (char)( (rand()% 11) -5);
+        } while (temp[1][X + (int) x[nu].Xdir[dd]][Y + (int) x[nu].Ydir[dd] ] < -15 || ( X + (int) x[nu].Xdir[dd])<0 ||  (X + (int) x[nu].Xdir[dd]) > X_MAX || (Y + (int) x[nu].Ydir[dd]) < 0 || (Y + (int) x[nu].Ydir[dd]) > Y_MAX );
+        X = X + (int) x[nu].Xdir[dd];
+        Y = Y + (int) x[nu].Ydir[dd];
+      } 
     }                                                                        // end creating individual   
   }                                                                          // end if more than 0 recruits
  return (Indvs + N_r) ;
@@ -296,6 +381,10 @@ int alive2front(struct ind x[])
       x[alv].u_m    = x[n].u_m    ;     	
       x[alv].X      = x[n].X      ;
       x[alv].Y      = x[n].Y      ;
+      for(int dd=0; dd < 550; dd++){
+        x[alv].Xdir[dd] = x[n].Xdir[dd] ;
+        x[alv].Ydir[dd] = x[n].Ydir[dd] ;
+      } 
       alv++ ;
     }
   }
@@ -303,6 +392,19 @@ int alive2front(struct ind x[])
   
   return (alv);
 }
+
+void readgrid (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid)
+{
+   for (int tt = 0; tt < anTmax; tt++){
+  	 for (int yy = 0; yy < anYmax; yy++){
+	     for (int xx = 0; xx < anXmax; xx++){
+ 				  *aFile >> (agrid[tt][xx][yy]); 
+       }
+      }
+		}		   
+    cout << ("Read grid finished") << endl << flush;
+}
+
 
 void output(struct ind x[],int t, int number){
   for(int n = 0 ; n < number ; n++) {
