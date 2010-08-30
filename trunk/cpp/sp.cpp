@@ -5,48 +5,48 @@
 
 using namespace std ;
 
-#define POPMAX 190000       //600000 // 
-#define T_MAX  900
-#define X_MAX  144         //144//
-#define Y_MAX  120         //120//
-
+#define POPMAX 190000       // Numbers of individuals to start simulation with 600000 // 
+#define T_MAX  900          // Maximum number of years that sim runs // 
+#define X_MAX  144          // Max X dimension of Lorna map/grid 144//
+#define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
 
 #define k           0.85    // Lorna DEB parm //
-#define Pam          390    // Lorna DEB parm //
+#define Pam        390.0    // Lorna DEB parm //
 #define pm          19.4    // Lorna DEB parm //
-#define Em          2500    // Lorna DEB parm //
-#define Eg          5600    // Lorna DEB parm //
-#define TA          7000    // Lorna DEB parm //
-#define Tref         283    // Lorna DEB parm //
-#define TAlow      50000    // Lorna DEB parm //
-#define TL           277    // Lorna DEB parm //
-#define TAhigh    100000    // Lorna DEB parm //
-#define TH           297    // Lorna DEB parm //
+#define Em        2500.0    // Lorna DEB parm //
+#define Eg        5600.0    // Lorna DEB parm //
+#define TA        7000.0    // Lorna DEB parm //
+#define Tref       283.0    // Lorna DEB parm //
+#define TAlow    50000.0    // Lorna DEB parm //
+#define TL         277.0    // Lorna DEB parm //
+#define TAhigh  100000.0    // Lorna DEB parm //
+#define TH         297.0    // Lorna DEB parm //
 #define m          0.219    // Lorna DEB parm //
 #define foodh   0.000069    // Lorna DEB parm //
 
 #define BETA       3.000
 
-#define O_f       -1.340    // PMRN slope //
-#define O_m       -0.500    
+#define O_f       -1.340    // PMRN slope females //
+#define O_m       -0.500    // PMRN slope males   //
+#define U_M        14.60    // intercept PMRN by sex //
+#define U_F        24.70    // intercept PMRN by sex //
+#define OMEGA      2.275598 // PMRN vertical width //
+
 #define R1ple      9.0E2    // stock recruitment parameters, This means that max 900 individuals are born (being 900 million individuals in field), matches up with weights//
 #define R2ple      3.0E3    // stock recruitment parameters //
 #define R1sol      9.0E2    // stock recruitment parameters //
 #define R2sol      3.0E3    // stock recruitment parameters //
-#define OMEGA      2.275598 // PMRN vertical width //
-#define M_B        1.5E-4   // baseline mortality (old) divided by 365 to go to days //
 
-#define ETA       -0.280 
+#define M_B        1.5E-4   // baseline mortality (old) divided by 365 to go to days //
+#define ETA       -0.280    // exponent of size dependent natural mortality //
 #define F_MAX      0.0      // fishing mortality //
 #define PI         0.5938   // fishing selectivity constant //
 #define LAMBDAple  2.200    // mesh size selection factor //
 #define LAMBDAsol  2.200    // mesh size selection factor //
-
 #define S_mesh     7.000    // mesh size //
+
 #define EGGWGHT    4.2E-3   // ton for 1 000 000 individuals, because for one individual it is in gram // 
 
-#define U_M        14.60    // intercept PMR by sex //
-#define U_F        24.70    // intercept PMRN by sex //
 
 typedef float    (*FTYPE)[X_MAX][Y_MAX];
 
@@ -78,7 +78,7 @@ double ind::u()
 
 double ind::length()
 { 
-   return (pow(weight,(1/3))/m) ;  /* This now comes from Lornas R file, TO BE FIXED, INSTEAD OF WEIGHT LORNA USES V (volume) */   
+   return (pow(weight,0.3333333)/m) ;  /* This now comes from Lornas R file, TO BE FIXED, INSTEAD OF WEIGHT LORNA USES V (volume) */   
 }
 double ind::Lp50()
 { 
@@ -106,6 +106,7 @@ class cell
 double cell::kg_sol(){ 
   return kg_sol1 + kg_sol2 + kg_sol3; 
 }
+
 void   move                 (struct ind x[], int Indvs) ; 
 void   growth               (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp) ;
 void   age                  (struct ind x[], int Indvs)            ;
@@ -291,12 +292,12 @@ void move (struct ind x[], int Indvs){
 void growth (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp){
  
   for(int n = 0 ; n < Indvs ; n++){	  
-    x[n].weight  = x[n].weight + ((k*((46*food[tofy][x[n].X][x[n].Y])/(foodh+(46*food[tofy][x[n].X][x[n].Y])))*(Pam*(exp((TA/Tref)-(TA/(273+(temp[tofy][x[n].X][x[n].Y]+0))))
-                *((1+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1*x[n].length() )))-(TAhigh/Tref)))
-                /(1+exp((TAlow/(273+(temp[tofy][x[n].X][x[n].Y]+0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1*x[n].length() )))-(TAhigh/(273+(temp[tofy][x[n].X][x[n].Y]+0)))))))))
-                *pow( pow((m* x[n].length()  ),3),(2/3))   -((pm*(exp((TA/Tref)-(TA/(273+(temp[tofy][x[n].X][x[n].Y]+0))))))*(pow((m*x[n].length()),3))))/
-                ((k*((46*food[tofy][x[n].X][x[n].Y])/(foodh+(46*food[tofy][x[n].X][x[n].Y])))*Em)+Eg);
-  }                
+     x[n].weight  = x[n].weight + ((k*((46.0*food[tofy][x[n].X][x[n].Y])/(foodh+(46.0*food[tofy][x[n].X][x[n].Y])))*(Pam*
+                 (exp((TA/Tref)-(TA/(273+(temp[tofy][x[n].X][x[n].Y]+0.0))))*((1+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1* x[n].length() )))-(TAhigh/Tref)))
+                 /(1+exp((TAlow/(273.0+(temp[tofy][x[n].X][x[n].Y]+0.0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1* x[n].length() )))-(TAhigh/(273.0+(temp[tofy][x[n].X][x[n].Y]+0)))))))))
+                 *pow((pow((m* x[n].length() ),3)),0.666666) -((pm*(exp((TA/Tref)-(TA/(273+(temp[tofy][x[n].X][x[n].Y]+0.0))))))*(pow((m* x[n].length() ),3))))/
+                 ((k*((46.0*food[tofy][x[n].X][x[n].Y])/(foodh+(46.0*food[tofy][x[n].X][x[n].Y])))*Em)+Eg);
+   }                
 }      
     
 void maturation (struct ind x[], int Indvs){  
@@ -316,11 +317,10 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
   for(int n = 0 ; n < Indvs ; n++)  {
     if (x[n].stage <3)    {
                                                                  // Natural mortality 
-      m_p     = (pow(x[n].weight , ETA)/365) ;                         // predation mortality due to foraging   
+      m_p     = (pow(x[n].weight , ETA)/365) ;                   // predation mortality due to foraging   
       M_tot   = M_B +  m_p  ;                                    // TOTAL natural mortality = background + predation mortality    
                                                                  // Fishing mortality NOTE SHOULD DEPEND ON LOCATION 
-      F       = F_MAX / ( 1 + exp(- PI * (x[n].length() - LAMBDA * S_mesh))) ;  
-      F_tot   = F;                                               // TOTAL fishing mortality                                 
+      F_tot       = F_MAX / ( 1 + exp(- PI * (x[n].length() - LAMBDA * S_mesh))) ;  
                                                                  // Probability total mortality (natural + fishing)      
       psurv   = exp(-(M_tot + F_tot)) ;                                       
       if(((double)rand()/((double)RAND_MAX+1)) > psurv)
@@ -337,6 +337,7 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
   int N_r = (int) ( R1* SSB / (R2 + SSB )) ; /*NOTE SSB IS SCALED */
   if (N_r > 0 ){
     for(int nu = Indvs; nu < (Indvs + N_r); nu++){
+      trek twee individuen random uit populatie. Welk individu is het grootst? Die geeft hier genen door
       x[nu].sex    = (int) ceil(2*((double)rand_sex()/((double)RAND_MAX)));
       x[nu].age    = 0;
       x[nu].stage  = 1;
