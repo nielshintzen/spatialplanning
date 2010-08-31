@@ -26,7 +26,7 @@ using namespace std ;
 
 #define BETA       3.000
 
-#define O_f       -1.340    // PMRN slope females //
+#define O_f       -1.340    // PMRN slope females // probalistic maturation reaction norm
 #define O_m       -0.500    // PMRN slope males   //
 #define U_M        14.60    // intercept PMRN by sex //
 #define U_F        24.70    // intercept PMRN by sex //
@@ -129,8 +129,8 @@ int main (){
  FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood) * 365);
  FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp) * 365);
 
- fstream GridFood ("D:\\svnjjp\\data\\food.dat", ios::in);
- fstream GridTemp ("D:\\svnjjp\\data\\temp.dat", ios::in);
+ fstream GridFood ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food.dat", ios::in);
+ fstream GridTemp ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp.dat", ios::in);
  //fstream GridFood ("media/n/Projecten/SpatialPlanning/svnjjp/data/food.dat", ios::in);
  //fstream GridTemp ("media/n/Projecten/SpatialPlanning/svnjjp/data/temp.dat", ios::in);
 
@@ -145,7 +145,7 @@ int main (){
  /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
 
   for(int i=0; i < POPMAX; i++) {
-    if( i > POPMAX/2){
+    if( i > (POPMAX/2)){
       ple[i].sex    = 2;
       ple[i].weight = 80 ;
     } else {
@@ -161,15 +161,15 @@ int main (){
     int X =ple[i].X ;
     int Y =ple[i].Y ; 
     for(int dd=0; dd < 550; dd++){    
-        do{ple[i].Xdir[dd] = (char)( (rand()% 11) -5);
-           ple[i].Ydir[dd] = (char)( (rand()% 11) -5);
+        do{ple[i].Xdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
+           ple[i].Ydir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
         } while (theTemp[1][X + (int) ple[i].Xdir[dd]][Y + (int) ple[i].Ydir[dd] ] < -15 ||( X + (int) ple[i].Xdir[dd]) <0 || X + (int) ple[i].Xdir[dd] > X_MAX || Y + (int) ple[i].Ydir[dd] < 0 || Y + (int) ple[i].Ydir[dd] > Y_MAX);
         X = X + (int) ple[i].Xdir[dd];
         Y = Y + (int) ple[i].Ydir[dd];
     }
   }
   cout << "init plepop done" << endl;
-  
+
   for(int i=0; i < POPMAX; i++){
     if( i > POPMAX/2)    {
       sol[i].sex    = 2;
@@ -335,26 +335,41 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
 int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, FTYPE temp){
 
   int N_r = (int) ( R1* SSB / (R2 + SSB )) ; /*NOTE SSB IS SCALED */
-  if (N_r > 0 ){
+  if((N_r + Indvs) > POPMAX){ N_r = POPMAX - Indvs +1;} //Adding reproduction cannot result in population bigger than POPMAX
+  if (N_r > 0 ){ 
     for(int nu = Indvs; nu < (Indvs + N_r); nu++){
-      trek twee individuen random uit populatie. Welk individu is het grootst? Die geeft hier genen door
-      x[nu].sex    = (int) ceil(2*((double)rand_sex()/((double)RAND_MAX)));
+      int randAdult1, randAdult2, inher;
+      if(nu % 2 == 1){ //Males//
+        do{ randAdult1   = (int) rand() % Indvs;
+            randAdult2   = (int) rand() % Indvs;  
+            double adultPick = max(x[randAdult1].weight,x[randAdult2].weight);
+             if((double) adultPick == (double) x[randAdult1].weight){ inher = randAdult1; } else {inher = randAdult2; }
+        } while (randAdult1 == randAdult2 || x[randAdult1].sex != x[randAdult2].sex || x[randAdult1].sex != 1);
+        x[nu].sex  = 1;
+        x[nu].u_m  = x[inher].u_m;
+        x[nu].u_f  = x[inher].u_f;
+        for(int dd=0; dd < 550; dd++){
+          x[nu].Xdir[dd] = x[inher].Xdir[dd];
+          x[nu].Ydir[dd] = x[inher].Ydir[dd];
+        }
+      } else{ //Females//
+        do{ randAdult1   = (int) rand() % Indvs;
+            randAdult2   = (int) rand() % Indvs;  
+            double adultPick = max(x[randAdult1].weight,x[randAdult2].weight);
+            if((double) adultPick == (double) x[randAdult1].weight){ inher = randAdult1; } else { inher = randAdult2; }
+         } while (randAdult1 == randAdult2 || x[randAdult1].sex != x[randAdult2].sex || x[randAdult1].sex != 2);
+        x[nu].sex  = 2;
+        x[nu].u_m  = x[inher].u_m;
+        x[nu].u_f  = x[inher].u_f;
+        for(int dd=0; dd < 550; dd++){
+          x[nu].Xdir[dd] = x[inher].Xdir[dd];
+          x[nu].Ydir[dd] = x[inher].Ydir[dd];
+        }
+      }                                                                      // end males or females
+      //x[nu].sex    = (int) ceil(2*((double)rand_sex()/((double)RAND_MAX)));//
       x[nu].age    = 0;
       x[nu].stage  = 1;
       x[nu].weight = EGGWGHT;
-      x[nu].u_m    = U_M ;			
-      x[nu].u_f    = U_F ; 
-      x[nu].X      = 50 ;
-      x[nu].Y      = 60 ;
-      int X        = x[nu].X ;
-      int Y        = x[nu].Y ; 
-      for(int dd=0; dd < 550; dd++){    
-        do{x[nu].Xdir[dd] = (char)( (rand()% 11) -5);
-           x[nu].Ydir[dd] = (char)( (rand()% 11) -5);
-        } while (temp[1][X + (int) x[nu].Xdir[dd]][Y + (int) x[nu].Ydir[dd] ] < -15 || ( X + (int) x[nu].Xdir[dd])<0 ||  (X + (int) x[nu].Xdir[dd]) > X_MAX || (Y + (int) x[nu].Ydir[dd]) < 0 || (Y + (int) x[nu].Ydir[dd]) > Y_MAX );
-        X = X + (int) x[nu].Xdir[dd];
-        Y = Y + (int) x[nu].Ydir[dd];
-      } 
     }                                                                        // end creating individual   
   }                                                                          // end if more than 0 recruits
  return (Indvs + N_r) ;
@@ -371,7 +386,7 @@ void   aggregate (struct cell g[][30], struct ind x[], int Indvs){
 int alive2front(struct ind x[]) 
 {
   int alv = 0 ;                                                              /* bring alive ind to front so recruits can go to 
-                                                                                back to have staus 1 and 2 at beginning */
+                                                                                back to have status 1 and 2 at beginning */
   for(int n = 0 ; n < POPMAX ; n++) {
     if(x[n].stage <3) {
       x[alv].sex    = x[n].sex    ;
