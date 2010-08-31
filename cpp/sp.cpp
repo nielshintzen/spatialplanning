@@ -5,7 +5,7 @@
 
 using namespace std ;
 
-#define POPMAX 190000       // Numbers of individuals to start simulation with 600000 // 
+#define POPMAX 15000         // Numbers of individuals to start simulation with 600000 // 
 #define T_MAX  900          // Maximum number of years that sim runs // 
 #define X_MAX  144          // Max X dimension of Lorna map/grid 144//
 #define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
@@ -201,17 +201,7 @@ int main (){
   /* START SIM */
   for(int t = 0; t < T_MAX; t++){    
 
-    /* INITIALISE GRID IN EACH TIMESTEP */
- 
-    for(int xx=0; xx < X_MAX; xx++) {
-      for(int yy=0; yy < Y_MAX; yy++) {
-          grid[xx][yy].effort= 0;
-          grid[xx][yy].kg_sol1 = 0 ;
-          grid[xx][yy].kg_sol2 = 0 ;
-          grid[xx][yy].kg_sol3 = 0 ; 
-      }
-    }
-
+  
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;
         
@@ -255,6 +245,7 @@ int main (){
 
     if(t%365 == 30) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp); // Function of reproduction */
     if(t%365 == 30) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction */
+   
   }  
   
   
@@ -334,45 +325,37 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
 
 int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, FTYPE temp){
 
+  int up_nu, rndAdult1, rndAdult2, inher;
+ 
   int N_r = (int) ( R1* SSB / (R2 + SSB )) ; /*NOTE SSB IS SCALED */
-  if((N_r + Indvs) > POPMAX){ N_r = POPMAX - Indvs +1;} //Adding reproduction cannot result in population bigger than POPMAX
   if (N_r > 0 ){ 
-    for(int nu = Indvs; nu < (Indvs + N_r); nu++){
-      int randAdult1, randAdult2, inher;
+    up_nu = (int) min((Indvs + N_r),POPMAX);
+    for(int nu = Indvs; nu < up_nu  ; nu++){
       if(nu % 2 == 1){ //Males//
-        do{ randAdult1   = (int) rand() % Indvs;
-            randAdult2   = (int) rand() % Indvs;  
-            double adultPick = max(x[randAdult1].weight,x[randAdult2].weight);
-             if((double) adultPick == (double) x[randAdult1].weight){ inher = randAdult1; } else {inher = randAdult2; }
-        } while (randAdult1 == randAdult2 || x[randAdult1].sex != x[randAdult2].sex || x[randAdult1].sex != 1);
         x[nu].sex  = 1;
-        x[nu].u_m  = x[inher].u_m;
-        x[nu].u_f  = x[inher].u_f;
-        for(int dd=0; dd < 550; dd++){
-          x[nu].Xdir[dd] = x[inher].Xdir[dd];
-          x[nu].Ydir[dd] = x[inher].Ydir[dd];
-        }
+        do{ rndAdult1 = (int) rand() % Indvs;
+            rndAdult2 = (int) rand() % Indvs;  
+        } while ( (int) x[rndAdult1].sex !=1 || (int) x[rndAdult2].sex != 1);
+        if(x[rndAdult1].weight >= x[rndAdult2].weight){inher = rndAdult1; } else {inher = rndAdult2;} 
       } else{ //Females//
-        do{ randAdult1   = (int) rand() % Indvs;
-            randAdult2   = (int) rand() % Indvs;  
-            double adultPick = max(x[randAdult1].weight,x[randAdult2].weight);
-            if((double) adultPick == (double) x[randAdult1].weight){ inher = randAdult1; } else { inher = randAdult2; }
-         } while (randAdult1 == randAdult2 || x[randAdult1].sex != x[randAdult2].sex || x[randAdult1].sex != 2);
         x[nu].sex  = 2;
-        x[nu].u_m  = x[inher].u_m;
-        x[nu].u_f  = x[inher].u_f;
-        for(int dd=0; dd < 550; dd++){
-          x[nu].Xdir[dd] = x[inher].Xdir[dd];
-          x[nu].Ydir[dd] = x[inher].Ydir[dd];
-        }
-      }                                                                      // end males or females
-      //x[nu].sex    = (int) ceil(2*((double)rand_sex()/((double)RAND_MAX)));//
+        do{ rndAdult1 = (int) rand() % Indvs;
+            rndAdult2 = (int) rand() % Indvs;  
+        } while ((int) x[rndAdult1].sex !=2 || (int) x[rndAdult2].sex != 2);
+        if(x[rndAdult1].weight >= x[rndAdult2].weight){inher = rndAdult1; } else {inher = rndAdult2;} 
+      }  // end males or females
+      x[nu].u_m  = x[inher].u_m;
+      x[nu].u_f  = x[inher].u_f;
+      for(int dd=0; dd < 550; dd++){
+        x[nu].Xdir[dd] = x[inher].Xdir[dd];
+        x[nu].Ydir[dd] = x[inher].Ydir[dd];
+      }                                                                    
       x[nu].age    = 0;
       x[nu].stage  = 1;
       x[nu].weight = EGGWGHT;
     }                                                                        // end creating individual   
-  }                                                                          // end if more than 0 recruits
- return (Indvs + N_r) ;
+  }    
+  return (up_nu) ;
 }
 
 void   aggregate (struct cell g[][30], struct ind x[], int Indvs){
