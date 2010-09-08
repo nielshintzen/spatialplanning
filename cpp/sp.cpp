@@ -5,8 +5,8 @@
 
 using namespace std ;
 
-#define POPMAX 15000         // Numbers of individuals to start simulation with 600000 // 
-#define T_MAX  900          // Maximum number of years that sim runs // 
+#define POPMAX 10000         // Numbers of individuals to start simulation with 600000 // 
+#define T_MAX  9000          // Maximum number of years that sim runs // 
 #define X_MAX  144          // Max X dimension of Lorna map/grid 144//
 #define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
 
@@ -107,20 +107,21 @@ double cell::kg_sol(){
   return kg_sol1 + kg_sol2 + kg_sol3; 
 }
 
-void   move                 (struct ind x[], int Indvs) ; 
-void   growth               (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp) ;
-void   age                  (struct ind x[], int Indvs)            ;
-void   maturation           (struct ind x[], int Indvs)           ;
-void   mortality            (struct ind x[], double lambda, int Indvs, double B );
-void   output               (struct ind x[], int t, int number);
-int    alive2front          (struct ind x[])                       ;
-int    reproduction         (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp);
-void   aggregate            (struct cell g[][30], struct ind x[], int Indvs); 
-void   readgrid             (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
-double rnorm                (double mu, double sd)                 ;      // function random 
-double max                  (double first, double second)          ;      // function max 
-double min                  (double first, double second)          ;      // function min 
-double rand_sex             ();
+void   move             (struct ind x[], int Indvs) ; 
+void   growth           (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp) ;
+void   age              (struct ind x[], int Indvs)            ;
+void   maturation       (struct ind x[], int Indvs)           ;
+void   mortality        (struct ind x[], double lambda, int Indvs, double B );
+void   output           (struct ind x[], int t, int number);
+int    alive2front      (struct ind x[])                       ;
+int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp);
+void   larvalmortality  (struct ind x[], int Indvs, FTYPE larvmort);
+void   aggregate        (struct cell g[][30], struct ind x[], int Indvs); 
+void   readgrid         (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
+double rnorm            (double mu, double sd)                 ;      // function random 
+double max              (double first, double second)          ;      // function max 
+double min              (double first, double second)          ;      // function min 
+double rand_sex         ();
 
 
 int main (){   
@@ -128,9 +129,11 @@ int main (){
 
  FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood) * 365);
  FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp) * 365);
+ FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 365);
 
- fstream GridFood ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food.dat", ios::in);
- fstream GridTemp ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp.dat", ios::in);
+ fstream GridFood  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food.dat", ios::in);
+ fstream GridTemp  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp.dat", ios::in);
+ fstream GridLMort ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality.dat", ios::in);
  //fstream GridFood ("media/n/Projecten/SpatialPlanning/svnjjp/data/food.dat", ios::in);
  //fstream GridTemp ("media/n/Projecten/SpatialPlanning/svnjjp/data/temp.dat", ios::in);
 
@@ -142,6 +145,9 @@ int main (){
  readgrid(&GridTemp , X_MAX, Y_MAX, 365, theTemp);	
  cout << "theTemp pos d16,x50,y60 " << theTemp[15][49][59]<<" should be 7.362849 "  << endl;
  
+ readgrid(&GridLMort , X_MAX, Y_MAX, 365, theLMort);	
+ cout << "theLmort pos d16,x50,y60 " << theLMort[15][49][59]<<" should be xxx"  << endl;
+
  /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
 
   for(int i=0; i < POPMAX; i++) {
@@ -221,31 +227,33 @@ int main (){
     
     Bspawnple =  Btotalple - Bnurseple;
     Bspawnsol =  Btotalsol - Bnursesol;
-
-    if (t%10 == 0 ) move(ple, aliveple) ;                                            // Move individuals every tenth timestep //
-    if (t%10 == 0 ) move(sol, alivesol);                                             // Move individuals every tenth timestep //  
- 
-    age        (ple, aliveple)    ;                                                  // Function of ageing //
-    age        (sol, alivesol)    ;                                                  // Function of ageing //    
- 
-    mortality(ple, LAMBDAple, aliveple ,Bnurseple ) ;                                // Function mortality //
-    mortality(sol, LAMBDAsol, alivesol ,Bnursesol ) ;                                // Function mortality */
+    cout <<"move"<< endl;
+    if (t%10 == 0 ) move(ple, aliveple) ;                                                     // Move individuals every tenth timestep //
+    if (t%10 == 0 ) move(sol, alivesol);                                                      // Move individuals every tenth timestep //  
+    cout <<"age"<< endl; 
+    age        (ple, aliveple)    ;                                                           // Function of ageing //
+    age        (sol, alivesol)    ;                                                           // Function of ageing //    
+    cout <<"mortality"<< endl;
+    mortality(ple, LAMBDAple, aliveple ,Bnurseple ) ;                                         // Function mortality //
+    mortality(sol, LAMBDAsol, alivesol ,Bnursesol ) ;                                         // Function mortality */
+    cout <<"growth"<< endl;
+    growth     (ple, aliveple, Bnurseple, t % 365, theFood, theTemp) ;                        // Function of growth //   
+    growth     (sol, alivesol, Bnursesol, t % 365, theFood, theTemp) ;                        // Function of growth //    
+    cout <<"maturation"<< endl;
+    maturation (ple, aliveple)   ;                                                            // Function of maturation //
+    maturation (sol, alivesol)   ;                                                            // Function of maturation //
     
-    growth     (ple, aliveple, Bnurseple, t % 365, theFood, theTemp) ;               // Function of growth //   
-    growth     (sol, alivesol, Bnursesol, t % 365, theFood, theTemp) ;               // Function of growth //    
- 
-    maturation (ple, aliveple)   ;                                                   // Function of maturation //
-    maturation (sol, alivesol)   ;                                                   // Function of maturation //
-    
-    cout<<"ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; output(ple,t, 10);  // Write biomass and number to screen, followed by data for 10 indivuals // 
-    cout<<"ssb sol " << Bspawnsol<<" num sol "<<alivesol<< endl; output(sol,t, 10);  // Write biomass and number to screen, followed by data for 10 indivuals //
-  
-    aliveple = alive2front (ple)       ;                                             // shuffle so that alives are in front*/
-    alivesol = alive2front (sol)       ;                                             // shuffle so that alives are in front*/
-
+    cout<<"ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; output(ple,t, 3);           // Write biomass and number to screen, followed by data for 10 indivuals // 
+    cout<<"ssb sol " << Bspawnsol<<" num sol "<<alivesol<< endl; output(sol,t, 3);           // Write biomass and number to screen, followed by data for 10 indivuals //
+    cout <<"alive2front"<< endl; 
+    aliveple = alive2front (ple)       ;                                                      // shuffle so that alives are in front*/
+    alivesol = alive2front (sol)       ;                                                      // shuffle so that alives are in front*/
+    cout <<"reproduction"<< endl; 
     if(t%365 == 30) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp); // Function of reproduction */
     if(t%365 == 30) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction */
-   
+    cout <<"larvalmortality"<< endl;     
+    if(t%365 == 30){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
+    if(t%365 == 30){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
   }  
   
   
@@ -307,17 +315,20 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
   
   for(int n = 0 ; n < Indvs ; n++)  {
     if (x[n].stage <3)    {
-                                                                 // Natural mortality 
-      m_p     = (pow(x[n].weight , ETA)/365) ;                   // predation mortality due to foraging   
-      M_tot   = M_B +  m_p  ;                                    // TOTAL natural mortality = background + predation mortality    
-                                                                 // Fishing mortality NOTE SHOULD DEPEND ON LOCATION 
-      F_tot       = F_MAX / ( 1 + exp(- PI * (x[n].length() - LAMBDA * S_mesh))) ;  
-                                                                 // Probability total mortality (natural + fishing)      
-      psurv   = exp(-(M_tot + F_tot)) ;                                       
-      if(((double)rand()/((double)RAND_MAX+1)) > psurv)
-      {
-        if(((double)rand()/((double)RAND_MAX+1)) >  M_tot / (M_tot + F_tot)){x[n].stage = 3 ; } // dead by fishery
-        else                                                                {x[n].stage = 4 ; } // dead by natural causes  
+      if ( x[n].age > 5475){x[n].stage = 4 ;                       // Anymals older than 15 yrs die (necessary becaus they dont have movement strategy anymore 
+      } else{
+             
+        m_p     = (pow(x[n].weight , ETA)/365) ;                   // predation mortality due to foraging   
+        M_tot   = M_B +  m_p  ;                                    // TOTAL natural mortality = background + predation mortality    
+                                                                   // Fishing mortality NOTE SHOULD DEPEND ON LOCATION 
+        F_tot       = F_MAX / ( 1 + exp(- PI * (x[n].length() - LAMBDA * S_mesh))) ;  
+                                                                   // Probability total mortality (natural + fishing)      
+        psurv   = exp(-(M_tot + F_tot)) ;                                       
+        if(((double)rand()/((double)RAND_MAX+1)) > psurv ) 
+        {
+          if(((double)rand()/((double)RAND_MAX+1)) >  M_tot / (M_tot + F_tot)){x[n].stage = 3 ; } // dead by fishery
+          else                                                                {x[n].stage = 4 ; } // dead by natural causes  
+        }  
       }  
     }
   }
@@ -346,6 +357,8 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
       }  // end males or females
       x[nu].u_m  = x[inher].u_m;
       x[nu].u_f  = x[inher].u_f;
+      x[nu].X    = x[inher].X;
+      x[nu].Y    = x[inher].Y;
       for(int dd=0; dd < 550; dd++){
         x[nu].Xdir[dd] = x[inher].Xdir[dd];
         x[nu].Ydir[dd] = x[inher].Ydir[dd];
@@ -357,6 +370,21 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
   }    
   return (up_nu) ;
 }
+
+void larvalmortality (struct ind x[], int Indvs, FTYPE larvmort  )  {
+  double psurv ;
+  
+  for(int n = 0 ; n < Indvs ; n++)  {
+    if (x[n].age ==0)    {                                                 // only individuals of 0 days old suffer from larval mortality 
+      psurv   = exp(-larvmort[30][x[n].X][x[n].Y]) ;                                       
+      if(((double)rand()/((double)RAND_MAX+1)) > psurv){x[n].stage = 4 ; } // dead by natural causes  
+     
+      x[n].X    = 50;                                                     // now that we know which larvae died because of wrong position, move to standard position // 
+      x[n].Y    = 60;  
+    }
+  }
+}
+
 
 void   aggregate (struct cell g[][30], struct ind x[], int Indvs){
   for(int n = 0 ; n < Indvs ; n++)  {
