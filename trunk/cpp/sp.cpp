@@ -26,6 +26,9 @@ using namespace std ;
 
 #define BETA       3.000
 
+#define MUT_RATE   0.1      // Mutation rate, 10%//
+#define CROS_RATE  0.1      // Cross-over rate, 10%//
+
 #define O_f       -1.340    // PMRN slope females // probalistic maturation reaction norm
 #define O_m       -0.500    // PMRN slope males   //
 #define U_M        14.60    // intercept PMRN by sex //
@@ -114,7 +117,7 @@ void   maturation       (struct ind x[], int Indvs)           ;
 void   mortality        (struct ind x[], double lambda, int Indvs, double B );
 void   output           (struct ind x[], int t, int number);
 int    alive2front      (struct ind x[])                       ;
-int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp);
+int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp, FTYPE contour);
 void   larvalmortality  (struct ind x[], int Indvs, FTYPE larvmort);
 void   aggregate        (struct cell g[][30], struct ind x[], int Indvs); 
 void   readgrid         (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
@@ -130,10 +133,12 @@ int main (){
  FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood) * 365);
  FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp) * 365);
  FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 365);
+ FTYPE theContour = (FTYPE) malloc((size_t)sizeof(*theContour) * 4);
 
  fstream GridFood  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food.dat", ios::in);
  fstream GridTemp  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp.dat", ios::in);
  fstream GridLMort ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality.dat", ios::in);
+ fstream GridCont  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\gridcontour.dat", ios::in);
  //fstream GridFood ("media/n/Projecten/SpatialPlanning/svnjjp/data/food.dat", ios::in);
  //fstream GridTemp ("media/n/Projecten/SpatialPlanning/svnjjp/data/temp.dat", ios::in);
 
@@ -147,6 +152,9 @@ int main (){
  
  readgrid(&GridLMort , X_MAX, Y_MAX, 365, theLMort);	
  cout << "theLmort pos d16,x50,y60 " << theLMort[15][49][59]<<" should be xxx"  << endl;
+ 
+ readgrid(&GridCont , X_MAX, Y_MAX, 4, theContour);
+ cout << "theContour pos xmin, x50,y60" << theContour[1][49][59] << " should be xxx" << endl; 
 
  /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
 
@@ -249,8 +257,8 @@ int main (){
     aliveple = alive2front (ple)       ;                                                      // shuffle so that alives are in front*/
     alivesol = alive2front (sol)       ;                                                      // shuffle so that alives are in front*/
     cout <<"reproduction"<< endl; 
-    if(t%365 == 30) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp); // Function of reproduction */
-    if(t%365 == 30) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction */
+    if(t%365 == 30) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp, theContour); // Function of reproduction */
+    if(t%365 == 30) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp, theContour); // Function of reproduction */
     cout <<"larvalmortality"<< endl;     
     if(t%365 == 30){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
     if(t%365 == 30){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
@@ -334,35 +342,141 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
   }
 }
 
-int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, FTYPE temp){
+int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, FTYPE temp, FTYPE contour){
 
-  int up_nu, rndAdult1, rndAdult2, inher;
- 
+  int up_nu, rndAdult1, rndAdult2, inherM, inherF;
+  double rxmin, rymin, rxmax, rymax;
   int N_r = (int) ( R1* SSB / (R2 + SSB )) ; /*NOTE SSB IS SCALED */
   if (N_r > 0 ){ 
     up_nu = (int) min((Indvs + N_r),POPMAX);
     for(int nu = Indvs; nu < up_nu  ; nu++){
-      if(nu % 2 == 1){ //Males//
-        x[nu].sex  = 1;
-        do{ rndAdult1 = (int) rand() % Indvs;
-            rndAdult2 = (int) rand() % Indvs;  
-        } while ( (int) x[rndAdult1].sex !=1 || (int) x[rndAdult2].sex != 1);
-        if(x[rndAdult1].weight >= x[rndAdult2].weight){inher = rndAdult1; } else {inher = rndAdult2;} 
-      } else{ //Females//
-        x[nu].sex  = 2;
-        do{ rndAdult1 = (int) rand() % Indvs;
-            rndAdult2 = (int) rand() % Indvs;  
-        } while ((int) x[rndAdult1].sex !=2 || (int) x[rndAdult2].sex != 2);
-        if(x[rndAdult1].weight >= x[rndAdult2].weight){inher = rndAdult1; } else {inher = rndAdult2;} 
-      }  // end males or females
-      x[nu].u_m  = x[inher].u_m;
-      x[nu].u_f  = x[inher].u_f;
-      x[nu].X    = x[inher].X;
-      x[nu].Y    = x[inher].Y;
+      //Pick two adults, later define sex//
+      //Pick Males//
+      do{ rndAdult1 = (int) rand() % Indvs;
+          rndAdult2 = (int) rand() % Indvs;  
+      } while ( (int) x[rndAdult1].sex !=1 || (int) x[rndAdult2].sex != 1);
+      if(x[rndAdult1].weight >= x[rndAdult2].weight){inherM = rndAdult1; } else {inherM = rndAdult2;} 
+      //Pick Females//
+      do{ rndAdult1 = (int) rand() % Indvs;
+          rndAdult2 = (int) rand() % Indvs;  
+      } while ((int) x[rndAdult1].sex !=2 || (int) x[rndAdult2].sex != 2);
+      if(x[rndAdult1].weight >= x[rndAdult2].weight){inherF = rndAdult1; } else {inherF = rndAdult2;} 
+      // end males or females
+      
+      if(nu % 2 == 1){ 
+        x[nu].sex = 1;
+        x[nu].u_m  = x[inherM].u_m;
+        x[nu].u_f  = x[inherM].u_f;
+        x[nu].X    = x[inherM].X;
+        x[nu].Y    = x[inherM].Y;
+      } else { 
+          x[nu].sex = 2;
+          x[nu].u_m  = x[inherF].u_m;
+          x[nu].u_f  = x[inherF].u_f;
+          x[nu].X    = x[inherF].X;
+          x[nu].Y    = x[inherF].Y;
+        }
+        
+      //Inheratage cross-over and mutation//
+      
+      //Mutation//
+      int X = x[nu].X;
+      int Y = x[nu].Y;
       for(int dd=0; dd < 550; dd++){
-        x[nu].Xdir[dd] = x[inher].Xdir[dd];
-        x[nu].Ydir[dd] = x[inher].Ydir[dd];
-      }                                                                    
+        X = x[nu].X + (int) x[nu].Xdir[dd];
+        Y = x[nu].Y + (int) x[nu].Ydir[dd];
+        //Determine if there is a mutation
+        if((double)rand()/((double)RAND_MAX+1) < MUT_RATE){
+          //Determine how much space there is around all of the remaining movements, and mutate between that range//
+          rxmin = rxmax = 144;
+          rymin = rymax = 120;
+          for(int ee=dd; ee < 550; ee++){
+            rxmin = min(rxmin,contour[1][(int) X][(int) Y]);
+            rxmax = min(rxmax,contour[2][(int) X][(int) Y]);
+            rymin = min(rymin,contour[3][(int) X][(int) Y]);
+            rymax = min(rymax,contour[4][(int) X][(int) Y]);
+            X = X + (int) x[nu].Xdir[ee];
+            Y = Y + (int) x[nu].Ydir[ee];
+          }
+          //If there is no space to move, don't mutate//
+          if(rxmin == 0 & rxmax == 0 || rymin == 0 & rymax == 0){
+            //If only no space left in X-direction//
+            if(rxmin == 0 & rxmax == 0 & rymin != 0 & rymax != 0){
+              if(x[nu].sex == 1){
+                x[nu].Xdir[dd] = x[inherM].Xdir[dd];
+              } else {
+                  x[nu].Xdir[dd] = x[inherF].Xdir[dd];
+                }
+              do{x[nu].Ydir[dd] = (char)( (rand()% 11) -5);
+              } while(x[nu].Ydir[dd] < (-1 * rymin) || x[nu].Ydir[dd] > (rymax));
+            }
+            //If only no space left in Y-direction//  
+            if(rxmin != 0 & rxmax != 0 & rymin == 0 & rymax == 0){
+              if(x[nu].sex == 1){
+                x[nu].Ydir[dd] = x[inherM].Ydir[dd];
+              } else {
+                  x[nu].Ydir[dd] = x[inherF].Ydir[dd];
+                }
+              do{x[nu].Xdir[dd] = (char)( (rand()% 11) -5);
+              } while(x[nu].Xdir[dd] < (-1 * rxmin) || x[nu].Xdir[dd] > (rxmax));
+            }
+          } else {
+              //If there is space to move, mutate by taking random movement within possible movement range//
+              do{x[nu].Xdir[dd] = (char)( (rand()% 11) -5);
+                 x[nu].Ydir[dd] = (char)( (rand()% 11) -5);
+              } while(x[nu].Xdir[dd] < (-1 * rxmin) || x[nu].Xdir[dd] > (rxmax) || x[nu].Ydir[dd] < (-1 * rymin) || x[nu].Ydir[dd] > (rymax));
+            }
+        //If no mutation occurs         
+        } else {
+            if(x[nu].sex == 1){
+              x[nu].Xdir[dd] = x[inherM].Xdir[dd];
+              x[nu].Ydir[dd] = x[inherM].Ydir[dd];
+            } else {
+                x[nu].Xdir[dd] = x[inherF].Xdir[dd];
+                x[nu].Ydir[dd] = x[inherF].Ydir[dd];
+              }
+          }
+      }//End mutation//
+      
+      //cross-over//
+      X = x[nu].X;
+      Y = x[nu].Y;              
+      char SCO_M[550]; //Keep track of success in cross-over males//
+      char SCO_F[550]; //Keep track of success in cross-over females//                                
+      for(int dd=0; dd < 550; dd++){
+        SCO_M[dd] = SCO_F[dd] = 1; //Assume a success of cross-over//
+        X = x[nu].X + (int) x[nu].Xdir[dd];
+        Y = x[nu].Y + (int) x[nu].Ydir[dd];
+        
+        //See where it is possible to cross-over
+        for(int ee=dd; ee < 550; ee++){
+          if(x[nu].sex == 1){
+            if(temp[1][X + (int) x[inherF].Xdir[ee]][Y + (int) x[inherF].Ydir[ee] ] < -15 ||( X + (int) x[inherF].Xdir[ee]) <0 || X + (int) x[inherF].Xdir[ee] > X_MAX || Y + (int) x[inherF].Ydir[ee] < 0 || Y + (int) x[inherF].Ydir[ee] > Y_MAX){
+              X = X + (int) x[inherF].Xdir[ee];
+              Y = Y + (int) x[inherF].Ydir[ee];
+            } else { SCO_M[dd] = 0;}
+          } else {   
+              if(temp[1][X + (int) x[inherM].Xdir[ee]][Y + (int) x[inherF].Ydir[ee] ] < -15 ||( X + (int) x[inherM].Xdir[ee]) <0 || X + (int) x[inherM].Xdir[ee] > X_MAX || Y + (int) x[inherM].Ydir[ee] < 0 || Y + (int) x[inherM].Ydir[ee] > Y_MAX){
+                X = X + (int) x[inherF].Xdir[ee];
+                Y = Y + (int) x[inherF].Ydir[ee];
+              } else { SCO_F[dd] = 0;}
+            }
+        }
+        //Determine if there is a cross-over
+        if((double)rand()/((double)RAND_MAX+1) < CROS_RATE){                                 
+          for(int ee=dd;ee < 500; ee++){
+            if(x[nu].sex == 1 & SCO_F[dd] == 1){
+              x[nu].Xdir[ee] = x[inherF].Xdir[ee];
+              x[nu].Ydir[ee] = x[inherF].Ydir[ee];
+            } else {
+                if(SCO_M[dd] == 1){
+                  x[nu].Xdir[ee] = x[inherM].Xdir[ee];
+                  x[nu].Ydir[ee] = x[inherM].Ydir[ee];
+                }
+              }     
+          }
+        }//end cross-over success
+      }//end cross-over
       x[nu].age    = 0;
       x[nu].stage  = 1;
       x[nu].weight = EGGWGHT;
