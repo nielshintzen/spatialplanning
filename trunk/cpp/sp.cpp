@@ -5,8 +5,8 @@
 
 using namespace std ;
 
-#define POPMAX 10         // Numbers of individuals to start simulation with 600000 // 
-#define T_MAX  9000          // Maximum number of years that sim runs // 
+#define POPMAX 10000         // Numbers of individuals to start simulation with 600000 // 
+#define T_MAX  1000          // Maximum number of years that sim runs // 
 #define X_MAX  144          // Max X dimension of Lorna map/grid 144//
 #define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
 
@@ -26,10 +26,10 @@ using namespace std ;
 
 #define BETA       3.000
 
-#define MUT_RATE   1      // Mutation rate, 10%//
+#define MUT_RATE   0.1      // Mutation rate, 10%//
 #define MAX_MUT    1000     // Maximum number of tries to get a mutation
 #define MAX_CROS   1000     // Maximum number of tries to get a cross-over
-#define CROS_RATE  1      // Cross-over rate, 10%//
+#define CROS_RATE  0.1      // Cross-over rate, 10%//
 
 #define O_f       -1.340    // PMRN slope females // probalistic maturation reaction norm
 #define O_m       -0.500    // PMRN slope males   //
@@ -112,24 +112,26 @@ double cell::kg_sol(){
   return kg_sol1 + kg_sol2 + kg_sol3; 
 }
 
-void   move             (struct ind x[], int Indvs) ; 
-void   growth           (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp) ;
-void   age              (struct ind x[], int Indvs)            ;
-void   maturation       (struct ind x[], int Indvs)           ;
-void   mortality        (struct ind x[], double lambda, int Indvs, double B );
-void   output           (struct ind x[], int t, int number);
-int    alive2front      (struct ind x[])                       ;
-int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp, FTYPE contour);
-int    strategy         (ind x, FTYPE temp);
-void   larvalmortality  (struct ind x[], int Indvs, FTYPE larvmort);
-void   mutationSimple   (ind x, int ee, FTYPE temp);
-void   crossoverSimple  (ind x, ind father, ind mother, int ee, FTYPE temp);
-void   aggregate        (struct cell g[][30], struct ind x[], int Indvs); 
-void   readgrid         (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
-double rnorm            (double mu, double sd)                 ;      // function random 
-double max              (double first, double second)          ;      // function max 
-double min              (double first, double second)          ;      // function min 
-double rand_sex         ();
+void   move                (struct ind x[], int Indvs) ; 
+void   growth              (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp) ;
+void   age                 (struct ind x[], int Indvs)            ;
+void   maturation          (struct ind x[], int Indvs)           ;
+void   mortality           (struct ind x[], double lambda, int Indvs, double B );
+void   output              (struct ind x[], int t, int number);
+int    alive2front         (struct ind x[])                       ;
+int    reproduction        (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp, FTYPE contour);
+int    strategy            (ind x, FTYPE temp);
+void   larvalmortality     (struct ind x[], int Indvs, FTYPE larvmort);
+void   mutationSimple      (ind x, int ee, FTYPE temp);
+void   mutationDifficult   (ind x, FTYPE contour, FTYPE temp, int ee);
+void   crossoverSimple     (ind x, ind father, ind mother, int ee, FTYPE temp);
+void   crossoverDifficult  (ind x, ind father, ind mother, FTYPE contour, FTYPE temp);
+void   aggregate           (struct cell g[][30], struct ind x[], int Indvs); 
+void   readgrid            (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
+double rnorm               (double mu, double sd)                 ;      // function random 
+double max                 (double first, double second)          ;      // function max 
+double min                 (double first, double second)          ;      // function min 
+double rand_sex            ();
 
 
 int main (){   
@@ -397,6 +399,16 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
       }
         
       //Inheratage cross-over and mutation//
+      //if((double)rand()/((double)RAND_MAX+1) < CROS_RATE){
+//        crossoverDifficult(x[nu], x[inherM],x[inherF],contour,temp);
+//      }
+//      for(int dd = 0; dd < 550; dd++){
+//        if((double)rand()/((double)RAND_MAX+1) < MUT_RATE){
+//          mutationDifficult(x[nu],contour,temp,dd);
+//        }
+//      }
+      
+      //Inheratage cross-over and mutation//
       for(int dd = 0; dd < 550; dd++){
         if((double)rand()/((double)RAND_MAX+1) < CROS_RATE){
           crossoverSimple(x[nu],x[inherM],x[inherF],dd,temp);
@@ -512,7 +524,9 @@ double rand_sex()     {return rand()%RAND_MAX + 1 ; }                       // f
 int strategy(ind x, FTYPE temp)
 {
   int X,Y, lethal;
-  X = Y = lethal = 0;
+  lethal = 0;
+  X = x.X;
+  Y = x.Y;
   for(int dd = 0; dd < 550; dd++){     
     if(temp[1][X + (int) x.Xdir[dd]][Y + (int) x.Ydir[dd]] > -15 && lethal == 0){
       lethal = 0;
@@ -557,10 +571,113 @@ void crossoverSimple(ind x, ind father, ind mother, int ee, FTYPE temp)
        origX[dd] = x.Xdir[dd];
        origY[dd] = x.Ydir[dd];
      }
+          
+     for(int dd = ee; dd < 550; dd++){
+       if(x.sex == 1){
+         x.Xdir[dd] = mother.Xdir[dd];
+         x.Ydir[dd] = mother.Ydir[dd];
+       } else {
+           x.Xdir[dd] = father.Xdir[dd];
+           x.Ydir[dd] = father.Ydir[dd];
+         }
+     }
+     if(strategy(x,temp) == 0){
+       cout << " cross-over successfull " << endl;
+     } else {  
+         for(int dd = 0; dd < 550; dd++){
+           x.Xdir[dd] = origX[dd];
+           x.Ydir[dd] = origY[dd];
+         }
+       }
+}
+       
+void mutationDifficult(ind x, FTYPE contour, FTYPE temp, int ee )
+{
+     int X = x.X;
+     int Y = x.Y;
+     //Obtain the point where the individual currently is//
+     for(int dd = 0; dd < ee; dd++){
+       X = X + x.Xdir[dd];
+       Y = Y + x.Ydir[dd];
+     }
      
-     int counter = 0; //Make sure there is an escape if there are just no non-lethal strategies possible
-     do{ 
-       for(int dd = ee; dd < 550; dd++){
+     //Define the space to move
+     double rxmin, rxmax, rymin, rymax;
+     rxmin = rxmax = 144;
+     rymin = rymax = 120;
+     for(int dd = ee; dd < 550; ee++){
+       rxmin = min(rxmin,contour[1][(int) X][(int) Y]);
+       rxmax = min(rxmax,contour[2][(int) X][(int) Y]);
+       rymin = min(rymin,contour[3][(int) X][(int) Y]);
+       rymax = min(rymax,contour[4][(int) X][(int) Y]);
+       X = X + (int) x.Xdir[dd];
+       Y = Y + (int) x.Ydir[dd];
+     }
+     
+     //Mutate if there is space//
+     if((rxmin + rxmax + rymin + rymax)>0){
+       cout << " mutation success " << endl;
+       do{ x.Xdir[ee] = (char)( min((rand()% (int) rxmax),5) - min((rand()% (int) rxmin),5));
+           x.Ydir[ee] = (char)( min((rand()% (int) rymax),5) - min((rand()% (int) rymin),5));
+       } while (strategy(x, temp) == 1);
+     } else { cout << " mutation failure " << endl; }
+}  
+      
+void crossoverDifficult(ind x, ind father, ind mother, FTYPE contour, FTYPE temp)
+{
+     char success[550]; 
+     for(int all = 0; all < 550; all++){
+       int X = x.X;
+       int Y = x.Y;     
+     
+       int tmpend = 0; 
+       for(int dd = 0; dd < all; dd++){
+         X = X + x.Xdir[dd];
+         Y = Y + x.Ydir[dd];
+         tmpend++;
+       }
+     
+       double rxmin, rxmax, rymin, rymax;
+       rxmin = rxmax = 144;
+       rymin = rymax = 120;
+          
+       if(x.sex == 1){
+         for(int ee = tmpend; ee < 550; ee++){
+           rxmin = min(rxmin,contour[1][(int) X][(int) Y]);
+           rxmax = min(rxmax,contour[2][(int) X][(int) Y]);
+           rymin = min(rymin,contour[3][(int) X][(int) Y]);
+           rymax = min(rymax,contour[4][(int) X][(int) Y]);
+           X = X + (int) mother.Xdir[tmpend];
+           Y = Y + (int) mother.Ydir[tmpend];
+           if(contour[1][(int) X][(int) Y] != 999){ rxmin = rxmax = rymin = rymax = 0;}
+         }
+       } else { 
+           for(int ee = tmpend; ee < 550; ee++){
+             rxmin = min(rxmin,contour[1][(int) X][(int) Y]);
+             rxmax = min(rxmax,contour[2][(int) X][(int) Y]);
+             rymin = min(rymin,contour[3][(int) X][(int) Y]);
+             rymax = min(rymax,contour[4][(int) X][(int) Y]);
+             X = X + (int) father.Xdir[tmpend];
+             Y = Y + (int) father.Ydir[tmpend];
+             if(contour[1][(int) X][(int) Y] == 999){ rxmin = rxmax = rymin =rymax = 0;}
+           }
+         }
+            
+       if((rxmin + rxmax + rymin + rymax) > 0){
+         success[all] = 1;
+       } else { success[all] = 0; }
+     }
+     //Check if there is a possibility for a cross-over//
+     int successtotal = 0;
+     for(int i = 0; i < 550; i++){ successtotal = success[i] + successtotal;}
+     
+     if(successtotal > 0){
+       int pick;
+       do{
+         pick = rand() % 550;
+       } while (success[pick] == 1);
+       
+       for(int dd = pick; dd < 550; dd++){ 
          if(x.sex == 1){
            x.Xdir[dd] = mother.Xdir[dd];
            x.Ydir[dd] = mother.Ydir[dd];
@@ -569,121 +686,9 @@ void crossoverSimple(ind x, ind father, ind mother, int ee, FTYPE temp)
              x.Ydir[dd] = father.Ydir[dd];
            }
        }
-       counter++;
-     } while(strategy(x,temp) == 1 && counter <= (int) MAX_CROS);
-     if(counter > MAX_CROS){
-       //cout << " no cross-over success " << endl;
-       for(int dd = 0; dd < 550; dd++){
-         x.Xdir[dd] = origX[dd];
-         x.Ydir[dd] = origY[dd];
-       }
-     } else { cout << " cross-over successfull " << endl; }
-}
-       
+     }       
+}    
+     
+     
 
-
-//      //Mutation//
-//      cout << "into mutation " << endl;
-//      int X = x[nu].X;
-//      int Y = x[nu].Y;
-//      for(int dd=0; dd < 550; dd++){
-//        X = x[nu].X + (int) x[nu].Xdir[dd];
-//        Y = x[nu].Y + (int) x[nu].Ydir[dd];
-//        //Determine if there is a mutation
-//        if((double)rand()/((double)RAND_MAX+1) < MUT_RATE){
-//          cout << "mutation" << endl;
-//          //Determine how much space there is around all of the remaining movements, and mutate between that range//
-//          rxmin = rxmax = 144;
-//          rymin = rymax = 120;
-//          for(int ee=dd; ee < 550; ee++){
-//            rxmin = min(rxmin,contour[1][(int) X][(int) Y]);
-//            rxmax = min(rxmax,contour[2][(int) X][(int) Y]);
-//            rymin = min(rymin,contour[3][(int) X][(int) Y]);
-//            rymax = min(rymax,contour[4][(int) X][(int) Y]);
-//            X = X + (int) x[nu].Xdir[ee];
-//            Y = Y + (int) x[nu].Ydir[ee];
-//            cout << "mutated" << endl;
-//          }
-//          cout << "rxmin " << rxmin << " rxmax " << rxmax << " rymin " << rymin << " rymax " << rymax << endl;
-//          //If there is no space to move, don't mutate//
-//          if(rxmin == 0 & rxmax == 0 || rymin == 0 & rymax == 0){
-//          
-//            //If only no space left in X-direction//
-//            if(rxmin == 0 & rxmax == 0 & rymin != 0 & rymax != 0){
-//              if(x[nu].sex == 1){
-//                x[nu].Xdir[dd] = x[inherM].Xdir[dd];
-//              } else {
-//                  x[nu].Xdir[dd] = x[inherF].Xdir[dd];
-//                }
-//              do{x[nu].Ydir[dd] = (char)( (rand()% 11) -5);
-//              } while(x[nu].Ydir[dd] < (-1 * rymin) || x[nu].Ydir[dd] > (rymax));
-//            }
-//            //If only no space left in Y-direction//  
-//            if(rxmin != 0 & rxmax != 0 & rymin == 0 & rymax == 0){
-//              if(x[nu].sex == 1){
-//                x[nu].Ydir[dd] = x[inherM].Ydir[dd];
-//              } else {
-//                  x[nu].Ydir[dd] = x[inherF].Ydir[dd];
-//                }
-//              do{x[nu].Xdir[dd] = (char)( (rand()% 11) -5);
-//              } while(x[nu].Xdir[dd] < (-1 * rxmin) || x[nu].Xdir[dd] > (rxmax));
-//            }
-//          } else {
-//              //If there is space to move, mutate by taking random movement within possible movement range//
-//              do{x[nu].Xdir[dd] = (char)( (rand()% 11) -5);
-//                 x[nu].Ydir[dd] = (char)( (rand()% 11) -5);
-//              } while(x[nu].Xdir[dd] < (-1 * rxmin) || x[nu].Xdir[dd] > (rxmax) || x[nu].Ydir[dd] < (-1 * rymin) || x[nu].Ydir[dd] > (rymax));
-//            }
-//        //If no mutation occurs         
-//        } else {
-//            cout  << "no mutation "<< endl;
-//            if(x[nu].sex == 1){
-//              x[nu].Xdir[dd] = x[inherM].Xdir[dd];
-//              x[nu].Ydir[dd] = x[inherM].Ydir[dd];
-//            } else {
-//                x[nu].Xdir[dd] = x[inherF].Xdir[dd];
-//                x[nu].Ydir[dd] = x[inherF].Ydir[dd];
-//              }
-//          }
-//      }//End mutation//
-      
-//      //cross-over//
-//      X = x[nu].X;
-//      Y = x[nu].Y;              
-//      char SCO_M[550]; //Keep track of success in cross-over males//
-//      char SCO_F[550]; //Keep track of success in cross-over females//                                
-//      for(int dd=0; dd < 550; dd++){
-//        SCO_M[dd] = SCO_F[dd] = 1; //Assume a success of cross-over//
-//        X = x[nu].X + (int) x[nu].Xdir[dd];
-//        Y = x[nu].Y + (int) x[nu].Ydir[dd];
-//        
-//        //See where it is possible to cross-over
-//        for(int ee=dd; ee < 550; ee++){
-//          if(x[nu].sex == 1){
-//            if(temp[1][X + (int) x[inherF].Xdir[ee]][Y + (int) x[inherF].Ydir[ee] ] < -15 ||( X + (int) x[inherF].Xdir[ee]) <0 || X + (int) x[inherF].Xdir[ee] > X_MAX || Y + (int) x[inherF].Ydir[ee] < 0 || Y + (int) x[inherF].Ydir[ee] > Y_MAX){
-//              X = X + (int) x[inherF].Xdir[ee];
-//              Y = Y + (int) x[inherF].Ydir[ee];
-//            } else { SCO_M[dd] = 0;}
-//          } else {   
-//              if(temp[1][X + (int) x[inherM].Xdir[ee]][Y + (int) x[inherF].Ydir[ee] ] < -15 ||( X + (int) x[inherM].Xdir[ee]) <0 || X + (int) x[inherM].Xdir[ee] > X_MAX || Y + (int) x[inherM].Ydir[ee] < 0 || Y + (int) x[inherM].Ydir[ee] > Y_MAX){
-//                X = X + (int) x[inherF].Xdir[ee];
-//                Y = Y + (int) x[inherF].Ydir[ee];
-//              } else { SCO_F[dd] = 0;}
-//            }
-//        }
-//        //Determine if there is a cross-over
-//        if((double)rand()/((double)RAND_MAX+1) < CROS_RATE){                                 
-//          for(int ee=dd;ee < 500; ee++){
-//            if(x[nu].sex == 1 & SCO_F[dd] == 1){
-//              x[nu].Xdir[ee] = x[inherF].Xdir[ee];
-//              x[nu].Ydir[ee] = x[inherF].Ydir[ee];
-//            } else {
-//                if(SCO_M[dd] == 1){
-//                  x[nu].Xdir[ee] = x[inherM].Xdir[ee];
-//                  x[nu].Ydir[ee] = x[inherM].Ydir[ee];
-//                }
-//              }     
-//          }
-//        }//end cross-over success
-//      }//end cross-over
 
