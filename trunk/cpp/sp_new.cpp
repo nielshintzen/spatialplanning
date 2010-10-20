@@ -6,7 +6,7 @@
 using namespace std ;
 
 #define POPMAX 50000       // Numbers of individuals to start simulation with 600000 // 
-#define T_MAX  280000        // Maximum number of years that sim runs // 
+#define T_MAX  14000        // Maximum number of years that sim runs // 
 #define X_MAX  144          // Max X dimension of Lorna map/grid 144//
 #define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
 
@@ -67,10 +67,10 @@ class ind
       
        int    X ;         // current Xpos //
        int    Y ;         // current Xpos //
-       char   juvXdir[108] ; // juvenile strategy, which direction does fish go, chosen every 10 days (to reduce lenght of vector) length= 365*15/10=550)  
-       char   juvYdir[108] ; // juvenile strategy, which direction does fish go, chosen every 10 days (to reduce lenght of vector) length= 365*15/10=550)    
-       char   adultXdir[38] ; // adult strategy, which direction does fish go, chosen every 10 days (to reduce lenght of vector) length= 365*15/10=550)  
-       char   adultYdir[38] ; // adult strategy, which direction does fish go, chosen every 10 days (to reduce lenght of vector) length= 365*15/10=550)    
+       char   juvXdir[157] ; // juvenile strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*3/7=157)  
+       char   juvYdir[157] ; // juvenile strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*3/7=157)    
+       char   adultXdir[52] ; // adult strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*1/7=52)  
+       char   adultYdir[52] ; // adult strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*1/7=52)    
 
 }; 
 
@@ -89,7 +89,7 @@ double ind::Lp50()
    double O_p  ;  
    if (sex == 1) {O_p = O_m ; } 
    else          {O_p = O_f ; }
-   return u() + O_p * (age/365) ; // not sure if division by 365 is the most correct/convenient way, but I changed age to be days instead years)  
+   return u() + O_p * (age/52) ; // not sure if division by 52 (weeks) is the most correct/convenient way, but I changed age to be weeks instead years)  
 }
 
 
@@ -120,7 +120,6 @@ void   output           (struct ind x[], int t, int number);
 int    alive2front      (struct ind x[])                       ;
 int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp);
 void   larvalmortality  (struct ind x[], int Indvs, FTYPE larvmort);
-void   aggregate        (struct cell g[][30], struct ind x[], int Indvs); 
 void   readgrid         (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
 double rnorm            (double mu, double sd)                 ;      // function random 
 double max              (double first, double second)          ;      // function max 
@@ -133,29 +132,29 @@ unsigned long int id=0;
 int main (){   
  double Btotalple, Bnurseple, Bspawnple, Btotalsol, Bnursesol, Bspawnsol ;    /* biomass on nursery, total biomass */
 
-  FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood)  * 365);
-  FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp)  * 365);
-  FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 365);
+  FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood)  * 52);
+  FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp)  * 52);
+  FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
 
-  //fstream GridFood  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food.dat", ios::in);
-  //fstream GridTemp  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp.dat", ios::in);
-  //fstream GridLMort ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality.dat", ios::in);
-  fstream GridFood  ("d:\\svnjjp\\data\\food.dat", ios::in);
-  fstream GridTemp  ("d:\\svnjjp\\data\\temp.dat", ios::in);
-  fstream GridLMort ("d:\\svnjjp\\data\\larvalmortality.dat", ios::in);
-  //fstream GridFood ("media/n/Projecten/SpatialPlanning/svnjjp/data/food.dat", ios::in);
-  //fstream GridTemp ("media/n/Projecten/SpatialPlanning/svnjjp/data/temp.dat", ios::in);
-  //fstream GridLMort ("d:\\svnjjp\\data\\larvalmortality.dat", ios::in);
+  //fstream GridFood  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
+  //fstream GridTemp  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
+  //fstream GridLMort ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
+  fstream GridFood  ("d:\\data\\food7d.dat", ios::in);
+  fstream GridTemp  ("d:\\data\\temp7d.dat", ios::in);
+  fstream GridLMort ("d:\\data\\larvalmortality7d.dat", ios::in);
+  //fstream GridFood ("media/n/Projecten/SpatialPlanning/svnjjp/data/food7d.dat", ios::in);
+  //fstream GridTemp ("media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
+  //fstream GridLMort ("d:\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
 
   cell grid[X_MAX][Y_MAX];
 
-  readgrid(&GridFood , X_MAX, Y_MAX, 365, theFood);
+  readgrid(&GridFood , X_MAX, Y_MAX, 52, theFood);
   cout << "thefood pos d16,x50,y60 " << theFood[15][49][59]<<" should be 0.888712 "  << endl;
  	
-  readgrid(&GridTemp , X_MAX, Y_MAX, 365, theTemp);	
+  readgrid(&GridTemp , X_MAX, Y_MAX, 52, theTemp);	
   cout << "theTemp pos d16,x50,y60 " << theTemp[15][49][59]<<" should be 7.362849 "  << endl;
  
-  readgrid(&GridLMort , X_MAX, Y_MAX, 365, theLMort);	
+  readgrid(&GridLMort , X_MAX, Y_MAX, 52, theLMort);	
   cout << "theLmort pos d16,x50,y60 " << theLMort[15][49][59]<<" should be xxx"  << endl;
 
   /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
@@ -177,14 +176,14 @@ int main (){
     ple[i].Y      = 60 ;
     int X =ple[i].X ;
     int Y =ple[i].Y ; 
-    for(int dd=0; dd < 108;  dd++){ //check juvenile strategy    
+    for(int dd=0; dd < 157;  dd++){ //check juvenile strategy    
         do{ple[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
            ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
         } while (theTemp[1][X + (int) ple[i].juvXdir[dd]][Y + (int) ple[i].juvYdir[dd] ] < -15 ||( X + (int) ple[i].juvXdir[dd]) <0 || X + (int) ple[i].juvXdir[dd] > X_MAX || Y + (int) ple[i].juvYdir[dd] < 0 || Y + (int) ple[i].juvYdir[dd] > Y_MAX);
         X = X + (int) ple[i].juvXdir[dd];
         Y = Y + (int) ple[i].juvYdir[dd];    
     }
-    for(int dd=0; dd < 38;  dd++){ //check juvenile strategy    
+    for(int dd=0; dd < 52;  dd++){ //check juvenile strategy    
       ple[i].adultXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
       ple[i].adultYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
     } 
@@ -210,14 +209,14 @@ int main (){
     sol[i].Y      = 60 ;
     int X =sol[i].X ;
     int Y =sol[i].Y ; 
-    for(int dd=0; dd < 108; dd++){
+    for(int dd=0; dd < 157; dd++){
         do{sol[i].juvXdir[dd] = (char)((rand()% 11) -5);
            sol[i].juvYdir[dd] = (char)((rand()% 11) -5);
         } while( theTemp[1][X + (int) sol[i].juvXdir[dd]][Y + (int) sol[i].juvYdir[dd] ] < -15  ||( X + (int) sol[i].juvXdir[dd])<0 || (X + (int) sol[i].juvXdir[dd]) > X_MAX || (Y + (int) sol[i].juvYdir[dd]) < 0 ||( Y + (int) sol[i].juvYdir[dd]) > Y_MAX);
         X = X + (int) sol[i].juvXdir[dd];
         Y = Y + (int) sol[i].juvYdir[dd];
     }
-    for(int dd=0; dd < 38;  dd++){ //check juvenile strategy    
+    for(int dd=0; dd < 52;  dd++){ //check juvenile strategy    
       ple[i].adultXdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 left or right //
       ple[i].adultYdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 up or down    //
     }    
@@ -253,8 +252,8 @@ int main (){
     Bspawnple =  Btotalple - Bnurseple;
     Bspawnsol =  Btotalsol - Bnursesol;
 
-    if (t%10 == 0 ) move(ple, aliveple, t%365, theTemp);                                      // Move individuals every tenth timestep //
-    if (t%10 == 0 ) move(sol, alivesol, t%365, theTemp);                                      // Move individuals every tenth timestep //  
+    move(ple, aliveple, t%52, theTemp);                                                       // Move individuals every tenth timestep //
+    move(sol, alivesol, t%52, theTemp);                                                       // Move individuals every tenth timestep //  
  
     age        (ple, aliveple)    ;                                                           // Function of ageing //
     age        (sol, alivesol)    ;                                                           // Function of ageing //    
@@ -262,8 +261,8 @@ int main (){
     mortality(ple, LAMBDAple, aliveple ,Bnurseple ) ;                                         // Function mortality //
     mortality(sol, LAMBDAsol, alivesol ,Bnursesol ) ;                                         // Function mortality */
     
-    growth     (ple, aliveple, Bnurseple, t % 365, theFood, theTemp) ;                        // Function of growth //   
-    growth     (sol, alivesol, Bnursesol, t % 365, theFood, theTemp) ;                        // Function of growth //    
+    growth     (ple, aliveple, Bnurseple, t % 52, theFood, theTemp) ;                        // Function of growth //   
+    growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp) ;                        // Function of growth //    
 
     maturation (ple, aliveple)   ;                                                            // Function of maturation //
     maturation (sol, alivesol)   ;                                                            // Function of maturation //
@@ -274,13 +273,13 @@ int main (){
     aliveple = alive2front (ple)  ;                                                           // shuffle so that alives are in front*/
     alivesol = alive2front (sol)  ;                                                           // shuffle so that alives are in front*/
     
-    if(t%365 == 30) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp); // Function of reproduction */
-    if(t%365 == 30) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction */
+    if(t%52 == 5) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp); // Function of reproduction  in week 5*/
+    if(t%52 == 5) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction  in week 5*/
      
-    if(t%365 == 30){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
-    if(t%365 == 30){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
+    if(t%365 == 5){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
+    if(t%365 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
 
-    if ((t>3000 && t <3370)||(t>279620)){
+    if ((t>428 && t <481)||( t > (T_MAX-52))){
       for ( int nn = 0 ; nn <aliveple; nn++){ 
        myfile <<t <<"," << nn << ","<< ple[nn].id <<"," << (int) ple[nn].sex <<"," <<ple[nn].age<< ","<<(int) ple[nn].stage << "," << ple[nn].X<<","<<ple[nn].Y <<"," << ple[nn].weight <<   endl;
       }
@@ -300,11 +299,11 @@ void move (struct ind x[], int Indvs, int tofy, FTYPE temp){
   int Xtemp, Ytemp;
   for(int nn = 0 ; nn < Indvs ; nn++){
     if (x[nn].stage < 2){             
-      Xtemp = (int) x[nn].juvXdir[(int) (x[nn].age/10)];
-      Ytemp = (int) x[nn].juvYdir[(int) (x[nn].age/10)];
+      Xtemp = (int) x[nn].juvXdir[(int) (x[nn].age)];
+      Ytemp = (int) x[nn].juvYdir[(int) (x[nn].age)];
     } else {
-      Xtemp = (int) x[nn].adultXdir[(int) (tofy/10)];
-      Ytemp = (int) x[nn].adultYdir[(int) (tofy/10)];
+      Xtemp = (int) x[nn].adultXdir[(int) (tofy)];
+      Ytemp = (int) x[nn].adultYdir[(int) (tofy)];
     }
     x[nn].X += ((temp[tofy][x[nn].X + Xtemp][x[nn].Y + Ytemp ] < -15 )||(x[nn].X + Xtemp < 0 )||(x[nn].X + Xtemp > X_MAX )) ? 0 : Xtemp ; 
     x[nn].Y += ((temp[tofy][x[nn].X + Xtemp][x[nn].Y + Ytemp ] < -15 )||(x[nn].Y + Ytemp < 0 )||(x[nn].Y + Ytemp > Y_MAX )) ? 0 : Ytemp ;              
@@ -315,7 +314,7 @@ void move (struct ind x[], int Indvs, int tofy, FTYPE temp){
 void growth (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp){
  
   for(int n = 0 ; n < Indvs ; n++){	  
-     x[n].weight  = x[n].weight + ((k*((46.0*food[tofy][x[n].X][x[n].Y])/(foodh+(46.0*food[tofy][x[n].X][x[n].Y])))*(Pam*
+     x[n].weight  = x[n].weight + 7 * ((k*((46.0*food[tofy][x[n].X][x[n].Y])/(foodh+(46.0*food[tofy][x[n].X][x[n].Y])))*(Pam*
                  (exp((TA/Tref)-(TA/(273+(temp[tofy][x[n].X][x[n].Y]+0.0))))*((1+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1* x[n].length() )))-(TAhigh/Tref)))
                  /(1+exp((TAlow/(273.0+(temp[tofy][x[n].X][x[n].Y]+0.0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1* x[n].length() )))-(TAhigh/(273.0+(temp[tofy][x[n].X][x[n].Y]+0)))))))))
                  *pow((pow((m* x[n].length() ),3)),0.666666) -((pm*(exp((TA/Tref)-(TA/(273+(temp[tofy][x[n].X][x[n].Y]+0.0))))))*(pow((m* x[n].length() ),3))))/
@@ -339,7 +338,7 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
   
   for(int n = 0 ; n < Indvs ; n++)  {
     if (x[n].stage <3)    {
-      if ( x[n].age > 5475){x[n].stage = 4 ;                       // Animals older than 15 yrs die (necessary becaus they dont have movement strategy anymore 
+      if ( x[n].age > 780){x[n].stage = 4 ;                       // Animals older than 15 yrs die (necessary becaus they dont have movement strategy anymore 
       } else{
              
         m_p     = (pow(x[n].weight , ETA)/365) ;                   // predation mortality due to foraging   
@@ -384,11 +383,11 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
       x[nu].u_f  = x[inher].u_f;
       x[nu].X    = x[inher].X;
       x[nu].Y    = x[inher].Y;
-      for(int dd=0; dd < 108 ;  dd++){ //check juvenile strategy    
+      for(int dd=0; dd < 157 ;  dd++){ //check juvenile strategy    
         x[nu].juvXdir[dd] = x[inher].juvXdir[dd];
         x[nu].juvYdir[dd] = x[inher].juvYdir[dd];
       }
-      for(int dd=0; dd < 38 ;  dd++){ //check juvenile strategy    
+      for(int dd=0; dd < 52 ;  dd++){ //check juvenile strategy    
         x[nu].adultXdir[dd] = x[inher].adultXdir[dd];
         x[nu].adultYdir[dd] = x[inher].adultYdir[dd];
       } 
@@ -406,7 +405,7 @@ void larvalmortality (struct ind x[], int Indvs, FTYPE larvmort  )  {
   
   for(int n = 0 ; n < Indvs ; n++)  {
     if (x[n].age ==0)    {                                                 // only individuals of 0 days old suffer from larval mortality 
-      psurv   = exp(-larvmort[30][x[n].X][x[n].Y]) ;                                       
+      psurv   = exp(-larvmort[5][x[n].X][x[n].Y]) ;                                       
       if(((double)rand()/((double)RAND_MAX+1)) > psurv){x[n].stage = 4 ; } // dead by natural causes  
      
       x[n].X    = 50;                                                     // now that we know which larvae died because of wrong position, move to standard position // 
@@ -416,13 +415,6 @@ void larvalmortality (struct ind x[], int Indvs, FTYPE larvmort  )  {
 }
 
 
-void   aggregate (struct cell g[][30], struct ind x[], int Indvs){
-  for(int n = 0 ; n < Indvs ; n++)  {
-    if (x[n].stage <3)    {
-      g[x[n].X][x[n].Y].kg_sol1++;   /*incomplete, just a placeholder, this should depend on sizeclass of animal and have weight times number  */
-    }
-  }
-}
 
 int alive2front(struct ind x[]) 
 {
@@ -439,11 +431,11 @@ int alive2front(struct ind x[])
       x[alv].u_m    = x[n].u_m    ;     	
       x[alv].X      = x[n].X      ;
       x[alv].Y      = x[n].Y      ;
-      for(int dd=0; dd < 108; dd++){
+      for(int dd=0; dd < 157; dd++){
         x[alv].juvXdir[dd] = x[n].juvXdir[dd] ;
         x[alv].juvYdir[dd] = x[n].juvYdir[dd] ;
       } 
-      for(int dd=0; dd < 38; dd++){
+      for(int dd=0; dd < 52; dd++){
         x[alv].adultXdir[dd] = x[n].adultXdir[dd] ;
         x[alv].adultYdir[dd] = x[n].adultYdir[dd] ;
       } 
