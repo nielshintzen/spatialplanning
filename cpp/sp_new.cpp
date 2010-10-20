@@ -5,10 +5,13 @@
 
 using namespace std ;
 
-#define POPMAX 50000       // Numbers of individuals to start simulation with 600000 // 
-#define T_MAX  14000        // Maximum number of years that sim runs // 
+#define POPMAX 50000        // Numbers of individuals to start simulation with 600000 // 
+#define T_MAX  30000        // Maximum number of years that sim runs // 
 #define X_MAX  144          // Max X dimension of Lorna map/grid 144//
 #define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
+
+#define L_CHR1       157    // length of 1st chromosome (with juvenile strategy)     // 
+#define L_CHR2        52    // length of 2nd chromosome (with adult seasonal strategy) //
 
 #define k           0.85    // Lorna DEB parm //
 #define Pam        390.0    // Lorna DEB parm //
@@ -36,6 +39,8 @@ using namespace std ;
 #define R2ple      3.0E3    // stock recruitment parameters //
 #define R1sol      9.0E2    // stock recruitment parameters //
 #define R2sol      3.0E3    // stock recruitment parameters //
+#define MUT_RATE   0.050    // mutation rate //
+
 
 #define M_B        1.5E-4   // baseline mortality (old) divided by 365 to go to days //
 #define ETA       -0.280    // exponent of size dependent natural mortality //
@@ -67,10 +72,10 @@ class ind
       
        int    X ;         // current Xpos //
        int    Y ;         // current Xpos //
-       char   juvXdir[157] ; // juvenile strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*3/7=157)  
-       char   juvYdir[157] ; // juvenile strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*3/7=157)    
-       char   adultXdir[52] ; // adult strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*1/7=52)  
-       char   adultYdir[52] ; // adult strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*1/7=52)    
+       char   juvXdir[L_CHR1] ; // juvenile strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*3/7=157)  
+       char   juvYdir[L_CHR1] ; // juvenile strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*3/7=157)    
+       char   adultXdir[L_CHR2] ; // adult strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*1/7=52)  
+       char   adultYdir[L_CHR2] ; // adult strategy, which direction does fish go, chosen every 7 days (to reduce lenght of vector) length= 365*1/7=52)    
 
 }; 
 
@@ -142,9 +147,9 @@ int main (){
   fstream GridFood  ("d:\\data\\food7d.dat", ios::in);
   fstream GridTemp  ("d:\\data\\temp7d.dat", ios::in);
   fstream GridLMort ("d:\\data\\larvalmortality7d.dat", ios::in);
-  //fstream GridFood ("media/n/Projecten/SpatialPlanning/svnjjp/data/food7d.dat", ios::in);
-  //fstream GridTemp ("media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
-  //fstream GridLMort ("d:\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
+  //fstream GridFood ("/media/n/Projecten/SpatialPlanning/svnjjp/data/food7d.dat", ios::in);
+  //fstream GridTemp ("/media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
+  //fstream GridLMort ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7d.dat", ios::in);
 
   cell grid[X_MAX][Y_MAX];
 
@@ -176,14 +181,14 @@ int main (){
     ple[i].Y      = 60 ;
     int X =ple[i].X ;
     int Y =ple[i].Y ; 
-    for(int dd=0; dd < 157;  dd++){ //check juvenile strategy    
+    for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
         do{ple[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
            ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
         } while (theTemp[1][X + (int) ple[i].juvXdir[dd]][Y + (int) ple[i].juvYdir[dd] ] < -15 ||( X + (int) ple[i].juvXdir[dd]) <0 || X + (int) ple[i].juvXdir[dd] > X_MAX || Y + (int) ple[i].juvYdir[dd] < 0 || Y + (int) ple[i].juvYdir[dd] > Y_MAX);
         X = X + (int) ple[i].juvXdir[dd];
         Y = Y + (int) ple[i].juvYdir[dd];    
     }
-    for(int dd=0; dd < 52;  dd++){ //check juvenile strategy    
+    for(int dd=0; dd <L_CHR2;  dd++){ //check juvenile strategy    
       ple[i].adultXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
       ple[i].adultYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
     } 
@@ -209,14 +214,14 @@ int main (){
     sol[i].Y      = 60 ;
     int X =sol[i].X ;
     int Y =sol[i].Y ; 
-    for(int dd=0; dd < 157; dd++){
+    for(int dd=0; dd < L_CHR1; dd++){
         do{sol[i].juvXdir[dd] = (char)((rand()% 11) -5);
            sol[i].juvYdir[dd] = (char)((rand()% 11) -5);
         } while( theTemp[1][X + (int) sol[i].juvXdir[dd]][Y + (int) sol[i].juvYdir[dd] ] < -15  ||( X + (int) sol[i].juvXdir[dd])<0 || (X + (int) sol[i].juvXdir[dd]) > X_MAX || (Y + (int) sol[i].juvYdir[dd]) < 0 ||( Y + (int) sol[i].juvYdir[dd]) > Y_MAX);
         X = X + (int) sol[i].juvXdir[dd];
         Y = Y + (int) sol[i].juvYdir[dd];
     }
-    for(int dd=0; dd < 52;  dd++){ //check juvenile strategy    
+    for(int dd=0; dd < L_CHR2 ;  dd++){ //check juvenile strategy    
       ple[i].adultXdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 left or right //
       ple[i].adultYdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 up or down    //
     }    
@@ -227,7 +232,7 @@ int main (){
   int aliveple = POPMAX, alivesol = POPMAX; 
 
   ofstream myfile;
-  myfile.open ("d:\\testoutputspat.csv" );
+  myfile.open ("d:\\testoutputspat_mut.csv" );
 
   /* START SIM */
   for(int t = 0; t < T_MAX; t++){    
@@ -276,8 +281,8 @@ int main (){
     if(t%52 == 5) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp); // Function of reproduction  in week 5*/
     if(t%52 == 5) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction  in week 5*/
      
-    if(t%365 == 5){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
-    if(t%365 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
+    if(t%52 == 5){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
+    if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
 
     if ((t>428 && t <481)||( t > (T_MAX-52))){
       for ( int nn = 0 ; nn <aliveple; nn++){ 
@@ -341,7 +346,7 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
       if ( x[n].age > 780){x[n].stage = 4 ;                       // Animals older than 15 yrs die (necessary becaus they dont have movement strategy anymore 
       } else{
              
-        m_p     = (pow(x[n].weight , ETA)/365) ;                   // predation mortality due to foraging   
+        m_p     = (pow(x[n].weight , ETA)/52) ;                   // predation mortality due to foraging   
         M_tot   = M_B +  m_p  ;                                    // TOTAL natural mortality = background + predation mortality    
                                                                    // Fishing mortality NOTE SHOULD DEPEND ON LOCATION 
         F_tot       = F_MAX / ( 1 + exp(- PI * (x[n].length() - LAMBDA * S_mesh))) ;  
@@ -365,6 +370,7 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
   if (N_r > 0 ){ 
     up_nu = (int) min((Indvs + N_r),POPMAX);
     for(int nu = Indvs; nu < up_nu  ; nu++){
+      //create new individuals 
       if(nu % 2 == 1){ //Males//
         x[nu].sex  = 1;
         do{ rndAdult1 = (int) rand() % Indvs;
@@ -383,19 +389,33 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
       x[nu].u_f  = x[inher].u_f;
       x[nu].X    = x[inher].X;
       x[nu].Y    = x[inher].Y;
-      for(int dd=0; dd < 157 ;  dd++){ //check juvenile strategy    
+      for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
         x[nu].juvXdir[dd] = x[inher].juvXdir[dd];
         x[nu].juvYdir[dd] = x[inher].juvYdir[dd];
       }
-      for(int dd=0; dd < 52 ;  dd++){ //check juvenile strategy    
+      for(int dd=0; dd < L_CHR2;  dd++){ //check juvenile strategy    
         x[nu].adultXdir[dd] = x[inher].adultXdir[dd];
         x[nu].adultYdir[dd] = x[inher].adultYdir[dd];
       } 
+      //mutate movement strategies with mutation rate of 10%
+      if((double)rand()/((double)RAND_MAX+1) < MUT_RATE){
+         int mpos = rand()% ((L_CHR1 + L_CHR2) + 1);
+         if  (mpos < L_CHR1){
+         x[nu].juvXdir[mpos] = (char)((rand()% 11) -5); 
+         x[nu].juvYdir[mpos] = (char)((rand()% 11) -5); 
+        } else { 
+         x[nu].adultXdir[mpos-L_CHR1] = (char)((rand()% 11) -5); 
+         x[nu].adultYdir[mpos-L_CHR1] = (char)((rand()% 11) -5);
+        }
+      }
       x[nu].age    = 0;
       x[nu].stage  = 1;
       x[nu].weight = EGGWGHT;
+      
       id++;
-    }                                                                        // end creating individual   
+    }  
+    
+                                                                          // end creating individual   
   }    
   return (up_nu) ;
 }
@@ -431,11 +451,11 @@ int alive2front(struct ind x[])
       x[alv].u_m    = x[n].u_m    ;     	
       x[alv].X      = x[n].X      ;
       x[alv].Y      = x[n].Y      ;
-      for(int dd=0; dd < 157; dd++){
+      for(int dd=0; dd < L_CHR1 ; dd++){
         x[alv].juvXdir[dd] = x[n].juvXdir[dd] ;
         x[alv].juvYdir[dd] = x[n].juvYdir[dd] ;
       } 
-      for(int dd=0; dd < 52; dd++){
+      for(int dd=0; dd < L_CHR2; dd++){
         x[alv].adultXdir[dd] = x[n].adultXdir[dd] ;
         x[alv].adultYdir[dd] = x[n].adultYdir[dd] ;
       } 
