@@ -313,8 +313,8 @@ void move (struct ind x[], int Indvs, int tofy, FTYPE temp){
   int Xtemp, Ytemp;
   for(int nn = 0 ; nn < Indvs ; nn++){
     if (x[nn].stage < 2){             
-      Xtemp = (int) x[nn].juvXdir[(int) (x[nn].age)];
-      Ytemp = (int) x[nn].juvYdir[(int) (x[nn].age)];
+      Xtemp = (int) (x[nn].juvXdir[(int) (x[nn].age)] * (x[nn].length()/20)) ;
+      Ytemp = (int) (x[nn].juvYdir[(int) (x[nn].age)] * (x[nn].length()/20)) ;
     } else {
       Xtemp = (int) x[nn].adultXdir[(int) (tofy)];
       Ytemp = (int) x[nn].adultYdir[(int) (tofy)];
