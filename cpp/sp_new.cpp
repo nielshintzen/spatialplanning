@@ -121,6 +121,10 @@ void   growth           (struct ind x[], int Indvs, double B, int tofy, FTYPE fo
 void   age              (struct ind x[], int Indvs)            ;
 void   maturation       (struct ind x[], int Indvs)           ;
 void   mortality        (struct ind x[], double lambda, int Indvs, double B );
+
+int    steplength       (double intweight);
+double potentialgrowth  (double intweight, int X, int Y, int tofy, FTYPE food, FTYPE temp);
+
 void   output           (struct ind x[], int t, int number);
 int    alive2front      (struct ind x[])                       ;
 int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp);
@@ -179,14 +183,19 @@ int main (){
     ple[i].u_f    = U_F;
     ple[i].X      = 50 ;
     ple[i].Y      = 60 ;
-    int X =ple[i].X ;
-    int Y =ple[i].Y ; 
+    int    X      =ple[i].X ;
+    int    Y      =ple[i].Y ; 
+    double intweight = ple[i].weight; //Keep track of weight without overwriting the weight in 'ind'
+    int    step   = 0;
     for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
-        do{ple[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
-           ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
+        step = steplength(intweight); 
+        do{ple[i].juvXdir[dd] = (char)( (rand()% (6+ step)) -(5-step)); // Movement of maximum 5 left or right depending on steplength//
+           ple[i].juvYdir[dd] = (char)( (rand()% (6+ step)) -(5-step)); // Movement of maximum 5 up or down depending on steplength   //
         } while (theTemp[1][X + (int) ple[i].juvXdir[dd]][Y + (int) ple[i].juvYdir[dd] ] < -15 ||( X + (int) ple[i].juvXdir[dd]) <0 || X + (int) ple[i].juvXdir[dd] > X_MAX || Y + (int) ple[i].juvYdir[dd] < 0 || Y + (int) ple[i].juvYdir[dd] > Y_MAX);
         X = X + (int) ple[i].juvXdir[dd];
-        Y = Y + (int) ple[i].juvYdir[dd];    
+        Y = Y + (int) ple[i].juvYdir[dd]; 
+        int tofy = dd%52; 
+        intweight = potentialgrowth(intweight, X, Y, tofy, theFood, theTemp);   
     }
     for(int dd=0; dd <L_CHR2;  dd++){ //check juvenile strategy    
       ple[i].adultXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
@@ -212,14 +221,19 @@ int main (){
     sol[i].u_f    = U_F;
     sol[i].X      = 50 ;
     sol[i].Y      = 60 ;
-    int X =sol[i].X ;
-    int Y =sol[i].Y ; 
+    int    X      =sol[i].X ;
+    int    Y      =sol[i].Y ;
+    double intweight = sol[i].weight; //Keep track of weight without overwriting the weight in 'ind'
+    int    step   = 0; 
     for(int dd=0; dd < L_CHR1; dd++){
-        do{sol[i].juvXdir[dd] = (char)((rand()% 11) -5);
-           sol[i].juvYdir[dd] = (char)((rand()% 11) -5);
+        step = steplength(intweight);
+        do{sol[i].juvXdir[dd] = (char)( (rand()% (6+ step)) -(5-step));
+           sol[i].juvYdir[dd] = (char)( (rand()% (6+ step)) -(5-step));
         } while( theTemp[1][X + (int) sol[i].juvXdir[dd]][Y + (int) sol[i].juvYdir[dd] ] < -15  ||( X + (int) sol[i].juvXdir[dd])<0 || (X + (int) sol[i].juvXdir[dd]) > X_MAX || (Y + (int) sol[i].juvYdir[dd]) < 0 ||( Y + (int) sol[i].juvYdir[dd]) > Y_MAX);
         X = X + (int) sol[i].juvXdir[dd];
         Y = Y + (int) sol[i].juvYdir[dd];
+        int tofy = dd%52; 
+        intweight = potentialgrowth(intweight, X, Y, tofy, theFood, theTemp);   
     }
     for(int dd=0; dd < L_CHR2 ;  dd++){ //check juvenile strategy    
       ple[i].adultXdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 left or right //
@@ -400,9 +414,11 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
       //mutate movement strategies with mutation rate of 10%
       if((double)rand()/((double)RAND_MAX+1) < MUT_RATE){
          int mpos = rand()% ((L_CHR1 + L_CHR2) + 1);
+         int step = 0;
          if  (mpos < L_CHR1){
-         x[nu].juvXdir[mpos] = (char)((rand()% 11) -5); 
-         x[nu].juvYdir[mpos] = (char)((rand()% 11) -5); 
+         step = steplength(x[nu].weight);
+         x[nu].juvXdir[mpos] = (char)( (rand()% (6+ step)) -(5-step)); 
+         x[nu].juvYdir[mpos] = (char)( (rand()% (6+ step)) -(5-step)); 
         } else { 
          x[nu].adultXdir[mpos-L_CHR1] = (char)((rand()% 11) -5); 
          x[nu].adultYdir[mpos-L_CHR1] = (char)((rand()% 11) -5);
@@ -433,6 +449,33 @@ void larvalmortality (struct ind x[], int Indvs, FTYPE larvmort  )  {
     }
   }
 }
+
+int steplength (double intweight){
+
+  int step = 0;
+  if(intweight < 200 ){ step = 0;}
+  if(intweight < 400 ){ step = 1;}
+  if(intweight < 600 ){ step = 2;}
+  if(intweight < 800 ){ step = 3;}
+  if(intweight < 1000){ step = 4;
+  } else { step = 5;}
+  
+  return(step);
+}
+
+double potentialgrowth (double intweight, int X, int Y, int tofy, FTYPE food, FTYPE temp){
+ 
+  double intlength = pow(intweight,0.333333)/m; 
+  
+  intweight = intweight + 7 * ((k*((46.0*food[tofy][X][Y])/(foodh+(46.0*food[tofy][X][Y])))*(Pam*
+              (exp((TA/Tref)-(TA/(273+(temp[tofy][X][Y]+0.0))))*((1+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1* intlength )))-(TAhigh/Tref)))
+              /(1+exp((TAlow/(273.0+(temp[tofy][X][Y]+0.0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1* intlength) ))-(TAhigh/(273.0+(temp[tofy][X][Y]+0)))))))))
+              *pow((pow((m* intlength ),3)),0.666666) -((pm*(exp((TA/Tref)-(TA/(273+(temp[tofy][X][Y]+0.0))))))*(pow((m* intlength ),3))))/
+              ((k*((46.0*food[tofy][X][Y])/(foodh+(46.0*food[tofy][X][Y])))*Em)+Eg);
+  
+  return(intweight);                
+}
+       
 
 
 
@@ -477,7 +520,6 @@ void readgrid (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid)
 		}		   
     cout << ("Read grid finished") << endl << flush;
 }
-
 
 void output(struct ind x[],int t, int number){
   for(int n = 0 ; n < number ; n++) {
