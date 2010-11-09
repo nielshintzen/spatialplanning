@@ -61,6 +61,8 @@ class ind
        double length() ;
        double Lp50()   ;
        double u()      ;
+       double growth(double fd, double tmp) ;
+ 
        
        unsigned long int id ;       // age in days        
        int    age ;       // age in days
@@ -95,6 +97,15 @@ double ind::Lp50()
    if (sex == 1) {O_p = O_m ; } 
    else          {O_p = O_f ; }
    return u() + O_p * (age/52) ; // not sure if division by 52 (weeks) is the most correct/convenient way, but I changed age to be weeks instead years)  
+}
+
+double ind::growth(double fd, double tmp )
+{ 
+  return( 7 * ((k*((46.0*fd)/(foodh+(46.0*fd)))*(Pam*
+                 (exp((TA/Tref)-(TA/(273+(tmp+0.0))))*((1+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1* length() )))-(TAhigh/Tref)))
+                 /(1+exp((TAlow/(273.0+(tmp+0.0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1* length() )))-(TAhigh/(273.0+(tmp+0)))))))))
+                 *pow((pow((m* length() ),3)),0.666666) -((pm*(exp((TA/Tref)-(TA/(273+(tmp+0.0))))))*(pow((m* length() ),3))))/
+                 ((k*((46.0*fd)/(foodh+(46.0*fd)))*Em)+Eg));
 }
 
 
@@ -314,14 +325,11 @@ void move (struct ind x[], int Indvs, int tofy, FTYPE temp){
   }                                                           // end for loop over individuals //
 }  
 
+
 void growth (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp){
  
   for(int n = 0 ; n < Indvs ; n++){	  
-     x[n].weight  = x[n].weight + 7 * ((k*((46.0*food[tofy][x[n].X][x[n].Y])/(foodh+(46.0*food[tofy][x[n].X][x[n].Y])))*(Pam*
-                 (exp((TA/Tref)-(TA/(273+(temp[tofy][x[n].X][x[n].Y]+0.0))))*((1+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1* x[n].length() )))-(TAhigh/Tref)))
-                 /(1+exp((TAlow/(273.0+(temp[tofy][x[n].X][x[n].Y]+0.0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1* x[n].length() )))-(TAhigh/(273.0+(temp[tofy][x[n].X][x[n].Y]+0)))))))))
-                 *pow((pow((m* x[n].length() ),3)),0.666666) -((pm*(exp((TA/Tref)-(TA/(273+(temp[tofy][x[n].X][x[n].Y]+0.0))))))*(pow((m* x[n].length() ),3))))/
-                 ((k*((46.0*food[tofy][x[n].X][x[n].Y])/(foodh+(46.0*food[tofy][x[n].X][x[n].Y])))*Em)+Eg);
+     x[n].weight  = x[n].weight + x[n].growth(food[tofy][x[n].X][x[n].Y], temp[tofy][x[n].X][x[n].Y]);
    }                
 }      
     
