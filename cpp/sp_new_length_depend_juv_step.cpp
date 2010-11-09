@@ -167,14 +167,13 @@ int main (){
   for(int i=0; i < POPMAX; i++) {
     if( i > (POPMAX/2)){
       ple[i].sex    = 2;
-      ple[i].weight = 80 ;
     } else {
       ple[i].sex    = 1;
-      ple[i].weight = 60 ;
     }  
+    ple[i].weight = EGGWGHT;
     ple[i].id     = id ; 
     ple[i].stage  = 1 ; /* everybody should be mature */
-    ple[i].age    = 1 ;
+    ple[i].age    = 0 ;
     ple[i].u_m    = U_M ;
     ple[i].u_f    = U_F;
     ple[i].X      = 50 ;
@@ -200,14 +199,13 @@ int main (){
   for(int i=0; i < POPMAX; i++){
     if( i > POPMAX/2)    {
       sol[i].sex    = 2;
-      sol[i].weight = 80 ;
     } else{
       sol[i].sex    = 1;
-      sol[i].weight = 60 ;
     }  
+    sol[i].weight = EGGWGHT ;
     sol[i].id     = id ; 
     sol[i].stage  = 1 ; /* everybody should be mature */
-    sol[i].age    = 1 ;
+    sol[i].age    = 0 ;
     sol[i].u_m    = U_M ;
     sol[i].u_f    = U_F;
     sol[i].X      = 50 ;
@@ -235,7 +233,7 @@ int main (){
   myfile.open ("d:\\testoutputspat_mut.csv" );
 
   /* START SIM */
-  for(int t = 0; t < T_MAX; t++){    
+  for(int t = 5; t < T_MAX; t++){    
 
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;
