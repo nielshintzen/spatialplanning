@@ -189,14 +189,9 @@ int main (){
     ple[i].u_f    = U_F;
     ple[i].X      = 50 ;
     ple[i].Y      = 60 ;
-    int X =ple[i].X ;
-    int Y =ple[i].Y ; 
     for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
-        do{ple[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
-           ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
-        } while (theTemp[1][X + (int) ple[i].juvXdir[dd]][Y + (int) ple[i].juvYdir[dd] ] < -15 ||( X + (int) ple[i].juvXdir[dd]) <0 || X + (int) ple[i].juvXdir[dd] > X_MAX || Y + (int) ple[i].juvYdir[dd] < 0 || Y + (int) ple[i].juvYdir[dd] > Y_MAX);
-        X = X + (int) ple[i].juvXdir[dd];
-        Y = Y + (int) ple[i].juvYdir[dd];    
+      ple[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
+      ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
     }
     for(int dd=0; dd <L_CHR2;  dd++){ //check juvenile strategy    
       ple[i].adultXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
@@ -221,14 +216,9 @@ int main (){
     sol[i].u_f    = U_F;
     sol[i].X      = 50 ;
     sol[i].Y      = 60 ;
-    int X =sol[i].X ;
-    int Y =sol[i].Y ; 
     for(int dd=0; dd < L_CHR1; dd++){
-        do{sol[i].juvXdir[dd] = (char)((rand()% 11) -5);
-           sol[i].juvYdir[dd] = (char)((rand()% 11) -5);
-        } while( theTemp[1][X + (int) sol[i].juvXdir[dd]][Y + (int) sol[i].juvYdir[dd] ] < -15  ||( X + (int) sol[i].juvXdir[dd])<0 || (X + (int) sol[i].juvXdir[dd]) > X_MAX || (Y + (int) sol[i].juvYdir[dd]) < 0 ||( Y + (int) sol[i].juvYdir[dd]) > Y_MAX);
-        X = X + (int) sol[i].juvXdir[dd];
-        Y = Y + (int) sol[i].juvYdir[dd];
+      sol[i].juvXdir[dd] = (char)((rand()% 11) -5);
+      sol[i].juvYdir[dd] = (char)((rand()% 11) -5);
     }
     for(int dd=0; dd < L_CHR2 ;  dd++){ //check juvenile strategy    
       sol[i].adultXdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 left or right //
