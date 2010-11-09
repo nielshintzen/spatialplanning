@@ -6,7 +6,7 @@
 using namespace std ;
 
 #define POPMAX 50000        // Numbers of individuals to start simulation with 600000 // 
-#define T_MAX  30000        // Maximum number of years that sim runs // 
+#define T_MAX  3000         // Maximum number of years that sim runs // 
 #define X_MAX  144          // Max X dimension of Lorna map/grid 144//
 #define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
 
@@ -145,12 +145,12 @@ int main (){
   FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp)  * 52);
   FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
 
-  //fstream GridFood  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
-  //fstream GridTemp  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
-  //fstream GridLMort ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
-  fstream GridFood  ("d:\\data\\food7d.dat", ios::in);
-  fstream GridTemp  ("d:\\data\\temp7d.dat", ios::in);
-  fstream GridLMort ("d:\\data\\larvalmortality7d.dat", ios::in);
+  fstream GridFood  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
+  fstream GridTemp  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
+  fstream GridLMort ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
+  //fstream GridFood  ("d:\\data\\food7d.dat", ios::in);
+  //fstream GridTemp  ("d:\\data\\temp7d.dat", ios::in);
+  //fstream GridLMort ("d:\\data\\larvalmortality7d.dat", ios::in);
   //fstream GridFood ("/media/n/Projecten/SpatialPlanning/svnjjp/data/food7d.dat", ios::in);
   //fstream GridTemp ("/media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
   //fstream GridLMort ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7d.dat", ios::in);
@@ -299,8 +299,10 @@ int main (){
     if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
 
     if ((t>428 && t <481)||( t > (T_MAX-53))){
-      for ( int nn = 0 ; nn <aliveple; nn++){ 
-       myfile <<t <<"," << nn << ","<< ple[nn].id <<"," << (int) ple[nn].sex <<"," <<ple[nn].age<< ","<<(int) ple[nn].stage << "," << ple[nn].X<<","<<ple[nn].Y <<"," << ple[nn].weight <<   endl;
+      for ( int nn = 0 ; nn <aliveple; nn++){
+         if(ple[nn].id > POPMAX){
+           myfile <<t <<"," << nn << ","<< ple[nn].id <<"," << (int) ple[nn].sex <<"," <<ple[nn].age<< ","<<(int) ple[nn].stage << "," << ple[nn].X<<","<<ple[nn].Y <<"," << ple[nn].weight <<   endl;
+         }
       }
     }
   }  
