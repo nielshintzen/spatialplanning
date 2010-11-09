@@ -257,7 +257,9 @@ int main (){
 
     if ((t>428 && t <481)||( t > (T_MAX-53))){
       for ( int nn = 0 ; nn <aliveple; nn++){ 
-       myfile <<t <<"," << nn << ","<< ple[nn].id <<"," << (int) ple[nn].sex <<"," <<ple[nn].age<< ","<<(int) ple[nn].stage << "," << ple[nn].X<<","<<ple[nn].Y <<"," << ple[nn].weight <<   endl;
+        if(ple[nn].id > POPMAX){
+          myfile <<t <<"," << nn << ","<< ple[nn].id <<"," << (int) ple[nn].sex <<"," <<ple[nn].age<< ","<<(int) ple[nn].stage << "," << ple[nn].X<<","<<ple[nn].Y <<"," << ple[nn].weight <<   endl;
+        }
       }
     }
   }  
