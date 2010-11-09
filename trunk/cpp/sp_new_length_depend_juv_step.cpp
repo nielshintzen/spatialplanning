@@ -112,21 +112,6 @@ double ind::growth(double fd, double tmp )
 struct ind ple[POPMAX]; 
 struct ind sol[POPMAX]; 
 
-class cell
-{
-  public:
-  double kg_sol()   ;
-  double effort;
-  double depth; 
-  double kg_sol1;
-  double kg_sol2;
-  double kg_sol3;
-};
-
-double cell::kg_sol(){ 
-  return kg_sol1 + kg_sol2 + kg_sol3; 
-}
-
 void   move             (struct ind x[], int Indvs, int tofy, FTYPE temp) ; 
 void   growth           (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp) ;
 void   age              (struct ind x[], int Indvs)            ;
@@ -143,7 +128,6 @@ double min              (double first, double second)          ;      // functio
 double rand_sex         ();
 
 unsigned long int id=0;
-
 
 int main (){   
  double Btotalple, Bnurseple, Bspawnple, Btotalsol, Bnursesol, Bspawnsol ;    /* biomass on nursery, total biomass */
@@ -162,25 +146,19 @@ int main (){
   //fstream GridTemp ("/media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
   //fstream GridLMort ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7d.dat", ios::in);
 
-  cell grid[X_MAX][Y_MAX];
-
   readgrid(&GridFood , X_MAX, Y_MAX, 52, theFood);
-  cout << "thefood pos d16,x50,y60 " << theFood[15][49][59]<<" should be 0.888712 "  << endl;
+  cout << "thefood pos d16,x50,y60 " << theFood[15][49][59]<<" should be xxx "  << endl;
  	
   readgrid(&GridTemp , X_MAX, Y_MAX, 52, theTemp);	
-  cout << "theTemp pos d16,x50,y60 " << theTemp[15][49][59]<<" should be 7.362849 "  << endl;
+  cout << "theTemp pos d16,x50,y60 " << theTemp[15][49][59]<<" should be xxx "  << endl;
  
   readgrid(&GridLMort , X_MAX, Y_MAX, 52, theLMort);	
-  cout << "theLmort pos d16,x50,y60 " << theLMort[15][49][59]<<" should be xxx"  << endl;
+  cout << "theLmort pos d16,x50,y60 " << theLMort[15][49][59]<<" should be xxx "  << endl;
 
   /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
 
   for(int i=0; i < POPMAX; i++) {
-    if( i > (POPMAX/2)){
-      ple[i].sex    = 2;
-    } else {
-      ple[i].sex    = 1;
-    }  
+    ple[i].sex    = (i%2)+1;
     ple[i].weight = EGGWGHT;
     ple[i].id     = id ; 
     ple[i].stage  = 1 ; /* everybody should be mature */
@@ -200,14 +178,8 @@ int main (){
     id++;
   }
   
-  cout << "init plepop done" << endl;
-
   for(int i=0; i < POPMAX; i++){
-    if( i > POPMAX/2)    {
-      sol[i].sex    = 2;
-    } else{
-      sol[i].sex    = 1;
-    }  
+    sol[i].sex    = (i%2)+1;
     sol[i].weight = EGGWGHT ;
     sol[i].id     = id ; 
     sol[i].stage  = 1 ; /* everybody should be mature */
@@ -226,7 +198,7 @@ int main (){
     }    
     id++;
   }                                                    // end for loop over individuals /
-  cout << "init solpop done" << endl;
+  cout << "init plepop and solpop done" << endl;
 
   int aliveple = POPMAX, alivesol = POPMAX; 
 
@@ -289,8 +261,7 @@ int main (){
       }
     }
   }  
-  
-  
+
   myfile.close() ;
   return 0 ;  
 } 
@@ -310,11 +281,9 @@ void move (struct ind x[], int Indvs, int tofy, FTYPE temp){
       Ytemp = (int) x[nn].adultYdir[(int) (tofy)];
     }
     x[nn].X += ((temp[tofy][x[nn].X + Xtemp][x[nn].Y + Ytemp ] < -15 )||(x[nn].X + Xtemp < 0 )||(x[nn].X + Xtemp > X_MAX )) ? 0 : Xtemp ; 
-    x[nn].Y += ((temp[tofy][x[nn].X + Xtemp][x[nn].Y + Ytemp ] < -15 )||(x[nn].Y + Ytemp < 0 )||(x[nn].Y + Ytemp > Y_MAX )) ? 0 : Ytemp ;              
-     
+    x[nn].Y += ((temp[tofy][x[nn].X + Xtemp][x[nn].Y + Ytemp ] < -15 )||(x[nn].Y + Ytemp < 0 )||(x[nn].Y + Ytemp > Y_MAX )) ? 0 : Ytemp ;                   
   }                                                           // end for loop over individuals //
 }  
-
 
 void growth (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp){
  
@@ -409,9 +378,7 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
       x[nu].weight = EGGWGHT;
       
       id++;
-    }  
-    
-                                                                          // end creating individual   
+    }                     // end creating individual   
   }    
   return (up_nu) ;
 }
@@ -429,8 +396,6 @@ void larvalmortality (struct ind x[], int Indvs, FTYPE larvmort  )  {
     }
   }
 }
-
-
 
 int alive2front(struct ind x[]) 
 {
@@ -473,7 +438,6 @@ void readgrid (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid)
 		}		   
     cout << ("Read grid finished") << endl << flush;
 }
-
 
 void output(struct ind x[],int t, int number){
   for(int n = 0 ; n < number ; n++) {
