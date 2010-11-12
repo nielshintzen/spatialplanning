@@ -180,7 +180,7 @@ int main (){
            ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
            resX = (char) (ple[i].juvXdir[dd] * ple[i].swim()) ;
            resY = (char) (ple[i].juvYdir[dd] * ple[i].swim()) ;            
-        } while (theTemp[1][X + (int) resX][Y + (int) resY ] < -15 ||( X + (int) resX) <0 || X + (int) resX > X_MAX || Y + (int) resY < 0 || Y + (int) resY > Y_MAX);
+        } while ((theTemp[1][X + (int) resX][Y + (int) resY ] < -15) ||(( X + (int) resX) <0) || (( X + (int) resX) > X_MAX) ||(( Y + (int) resY) < 0) || ((Y + (int) resY) > Y_MAX));
         X = X + (int) resX;
         Y = Y + (int) resY;
         ple[i].weight  = ple[i].weight  + ple[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y]);      
@@ -211,7 +211,7 @@ int main (){
            sol[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
            resX = (char) (sol[i].juvXdir[dd] * sol[i].swim()) ;
            resY = (char) (sol[i].juvYdir[dd] * sol[i].swim()) ;            
-        } while (theTemp[1][X + (int) resX][Y + (int) resY ] < -15 ||( X + (int) resX) <0 || X + (int) resX > X_MAX || Y + (int) resY < 0 || Y + (int) resY > Y_MAX);
+        } while ((theTemp[1][X + (int) resX][Y + (int) resY ] < -15) ||(( X + (int) resX) <0) ||((X + (int) resX) > X_MAX) ||((Y + (int) resY )< 0) ||((Y + (int) resY) > Y_MAX));
         X = X + (int) resX;
         Y = Y + (int) resY;
         sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y]);      
