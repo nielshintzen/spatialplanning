@@ -167,14 +167,24 @@ int main (){
     ple[i].u_f    = U_F;
     ple[i].X      = 50 ;
     ple[i].Y      = 60 ;
+    int X         = ple[i].X;
+    int Y         = ple[i].Y;
+    int resX, resY;
     for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
-      ple[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
-      ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
-    }
+        do{ple[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
+           ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
+           resX = (char) (ple[i].juvXdir[dd] * (ple[i].length()/20)) ;
+           resY = (char) (ple[i].juvYdir[dd] * (ple[i].length()/20)) ;            
+        } while (theTemp[1][X + (int) resX][Y + (int) resY ] < -15 ||( X + (int) resX) <0 || X + (int) resX > X_MAX || Y + (int) resY < 0 || Y + (int) resY > Y_MAX);
+        X = X + (int) resX;
+        Y = Y + (int) resY;
+        ple[i].weight  = ple[i].weight  + ple[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y]);      
+    }    
     for(int dd=0; dd <L_CHR2;  dd++){ //check juvenile strategy    
       ple[i].adultXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
       ple[i].adultYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
-    } 
+    }
+    ple[i].weight = EGGWGHT;
     id++;
   }
   
@@ -188,14 +198,24 @@ int main (){
     sol[i].u_f    = U_F;
     sol[i].X      = 50 ;
     sol[i].Y      = 60 ;
-    for(int dd=0; dd < L_CHR1; dd++){
-      sol[i].juvXdir[dd] = (char)((rand()% 11) -5);
-      sol[i].juvYdir[dd] = (char)((rand()% 11) -5);
-    }
+    int X         = sol[i].X;
+    int Y         = sol[i].Y;
+    int resX, resY;
+    for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
+        do{sol[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
+           sol[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
+           resX = (char) (sol[i].juvXdir[dd] * (ple[i].length()/20)) ;
+           resY = (char) (sol[i].juvYdir[dd] * (ple[i].length()/20)) ;            
+        } while (theTemp[1][X + (int) resX][Y + (int) resY ] < -15 ||( X + (int) resX) <0 || X + (int) resX > X_MAX || Y + (int) resY < 0 || Y + (int) resY > Y_MAX);
+        X = X + (int) resX;
+        Y = Y + (int) resY;
+        sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y]);      
+    }   
     for(int dd=0; dd < L_CHR2 ;  dd++){ //check juvenile strategy    
       sol[i].adultXdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 left or right //
       sol[i].adultYdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 up or down    //
-    }    
+    }   
+    sol[i].weight = EGGWGHT; 
     id++;
   }                                                    // end for loop over individuals /
   cout << "init plepop and solpop done" << endl;
@@ -206,7 +226,7 @@ int main (){
   myfile.open ("d:\\testoutputspat_mut.csv" );
 
   /* START SIM */
-  for(int t = 5; t < T_MAX; t++){    
+  for(int t = 6; t < T_MAX; t++){    
 
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;
@@ -239,7 +259,7 @@ int main (){
     
     growth     (ple, aliveple, Bnurseple, t % 52, theFood, theTemp) ;                        // Function of growth //   
     growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp) ;                        // Function of growth //    
-
+    cout << "growth done" << endl;
     maturation (ple, aliveple)   ;                                                            // Function of maturation //
     maturation (sol, alivesol)   ;                                                            // Function of maturation //
     
@@ -248,10 +268,10 @@ int main (){
   
     aliveple = alive2front (ple)  ;                                                           // shuffle so that alives are in front*/
     alivesol = alive2front (sol)  ;                                                           // shuffle so that alives are in front*/
-    
+
     if(t%52 == 5) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp); // Function of reproduction  in week 5*/
     if(t%52 == 5) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction  in week 5*/
-     
+
     if(t%52 == 5){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
     if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
 
