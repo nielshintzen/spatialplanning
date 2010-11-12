@@ -178,11 +178,11 @@ int main (){
     for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
         do{ple[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
            ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
-           resX = (char) (ple[i].juvXdir[dd] * ple[i].swim()) ;
-           resY = (char) (ple[i].juvYdir[dd] * ple[i].swim()) ;            
-        } while ((theTemp[1][X + (int) resX][Y + (int) resY ] < -15) ||(( X + (int) resX) <0) || (( X + (int) resX) > X_MAX) ||(( Y + (int) resY) < 0) || ((Y + (int) resY) > Y_MAX));
-        X = X + (int) resX;
-        Y = Y + (int) resY;
+           resX = (int) (ple[i].juvXdir[dd] * ple[i].swim()) ;
+           resY = (int) (ple[i].juvYdir[dd] * ple[i].swim()) ;            
+        } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) || (( X + resX) > X_MAX) ||(( Y + resY) < 0) || ((Y + resY) > Y_MAX));
+        X += resX;
+        Y += resY;
         ple[i].weight  = ple[i].weight  + ple[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y]);      
     }    
     for(int dd=0; dd <L_CHR2;  dd++){ //check juvenile strategy    
@@ -209,11 +209,11 @@ int main (){
     for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
         do{sol[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
            sol[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
-           resX = (char) (sol[i].juvXdir[dd] * sol[i].swim()) ;
-           resY = (char) (sol[i].juvYdir[dd] * sol[i].swim()) ;            
-        } while ((theTemp[1][X + (int) resX][Y + (int) resY ] < -15) ||(( X + (int) resX) <0) ||((X + (int) resX) > X_MAX) ||((Y + (int) resY )< 0) ||((Y + (int) resY) > Y_MAX));
-        X = X + (int) resX;
-        Y = Y + (int) resY;
+           resX = (int) (sol[i].juvXdir[dd] * sol[i].swim()) ;
+           resY = (int) (sol[i].juvYdir[dd] * sol[i].swim()) ;            
+        } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) ||((X + resX) > X_MAX) ||((Y + resY )< 0) ||((Y + resY) > Y_MAX));
+        X += resX;
+        Y += resY;
         sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y]);      
     }   
     for(int dd=0; dd < L_CHR2 ;  dd++){ //check juvenile strategy    
