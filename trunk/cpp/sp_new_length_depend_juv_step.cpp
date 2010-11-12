@@ -5,8 +5,8 @@
 
 using namespace std ;
 
-#define POPMAX 50000        // Numbers of individuals to start simulation with 600000 // 
-#define T_MAX  30000        // Maximum number of years that sim runs // 
+#define POPMAX 5000        // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
+#define T_MAX  3000        // Maximum number of years that sim runs // 
 #define X_MAX  144          // Max X dimension of Lorna map/grid 144//
 #define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
 
@@ -134,7 +134,7 @@ double rand_sex         ();
 
 unsigned long int id=0;
 
-int main (){   
+int main (int argc, char* argv[]) {   
  double Btotalple, Bnurseple, Bspawnple, Btotalsol, Bnursesol, Bspawnsol ;    /* biomass on nursery, total biomass */
 
   FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood)  * 52);
@@ -228,7 +228,10 @@ int main (){
   int aliveple = POPMAX, alivesol = POPMAX; 
 
   ofstream myfile;
-  myfile.open ("d:\\testoutputspat_mut.csv" );
+  string filename("d:\\testoutputspat_mut");
+  string ext(".csv");
+  filename += ( argv[1] + ext) ;
+  myfile.open (filename.c_str() );
 
   /* START SIM */
   for(int t = 6; t < T_MAX; t++){    
