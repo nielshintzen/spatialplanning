@@ -134,8 +134,10 @@ double rand_sex         ();
 
 unsigned long int id=0;
 
-int main (int argc, char* argv[]) {   
- double Btotalple, Bnurseple, Bspawnple, Btotalsol, Bnursesol, Bspawnsol ;    /* biomass on nursery, total biomass */
+int main (int argc, char* argv[]) {
+
+  srand(atoi(argv[1]));
+  double Btotalple, Bnurseple, Bspawnple, Btotalsol, Bnursesol, Bspawnsol ;    /* biomass on nursery, total biomass */
 
   FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood)  * 52);
   FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp)  * 52);
