@@ -62,7 +62,7 @@ class ind
        double Lp50()   ;
        double u()      ;
        double growth(double fd, double tmp) ;
- 
+       double swim()  ;
        
        unsigned long int id ;       // age in days        
        int    age ;       // age in days
@@ -106,6 +106,11 @@ double ind::growth(double fd, double tmp )
                  /(1+exp((TAlow/(273.0+(tmp+0.0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1* length() )))-(TAhigh/(273.0+(tmp+0)))))))))
                  *pow((pow((m* length() ),3)),0.666666) -((pm*(exp((TA/Tref)-(TA/(273+(tmp+0.0))))))*(pow((m* length() ),3))))/
                  ((k*((46.0*fd)/(foodh+(46.0*fd)))*Em)+Eg));
+}
+
+double ind::swim()
+{ 
+  return(length()/20);
 }
 
 
@@ -173,8 +178,8 @@ int main (){
     for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
         do{ple[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
            ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
-           resX = (char) (ple[i].juvXdir[dd] * (ple[i].length()/20)) ;
-           resY = (char) (ple[i].juvYdir[dd] * (ple[i].length()/20)) ;            
+           resX = (char) (ple[i].juvXdir[dd] * ple[i].swim()) ;
+           resY = (char) (ple[i].juvYdir[dd] * ple[i].swim()) ;            
         } while (theTemp[1][X + (int) resX][Y + (int) resY ] < -15 ||( X + (int) resX) <0 || X + (int) resX > X_MAX || Y + (int) resY < 0 || Y + (int) resY > Y_MAX);
         X = X + (int) resX;
         Y = Y + (int) resY;
@@ -204,8 +209,8 @@ int main (){
     for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
         do{sol[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
            sol[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
-           resX = (char) (sol[i].juvXdir[dd] * (ple[i].length()/20)) ;
-           resY = (char) (sol[i].juvYdir[dd] * (ple[i].length()/20)) ;            
+           resX = (char) (sol[i].juvXdir[dd] * sol[i].swim()) ;
+           resY = (char) (sol[i].juvYdir[dd] * sol[i].swim()) ;            
         } while (theTemp[1][X + (int) resX][Y + (int) resY ] < -15 ||( X + (int) resX) <0 || X + (int) resX > X_MAX || Y + (int) resY < 0 || Y + (int) resY > Y_MAX);
         X = X + (int) resX;
         Y = Y + (int) resY;
@@ -259,7 +264,7 @@ int main (){
     
     growth     (ple, aliveple, Bnurseple, t % 52, theFood, theTemp) ;                        // Function of growth //   
     growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp) ;                        // Function of growth //    
-    cout << "growth done" << endl;
+   
     maturation (ple, aliveple)   ;                                                            // Function of maturation //
     maturation (sol, alivesol)   ;                                                            // Function of maturation //
     
@@ -296,8 +301,8 @@ void move (struct ind x[], int Indvs, int tofy, FTYPE temp){
   int Xtemp, Ytemp;
   for(int nn = 0 ; nn < Indvs ; nn++){
     if (x[nn].stage < 2){             
-      Xtemp = (int) (x[nn].juvXdir[(int) (x[nn].age)] * (x[nn].length()/20)) ;
-      Ytemp = (int) (x[nn].juvYdir[(int) (x[nn].age)] * (x[nn].length()/20)) ;
+      Xtemp = (int) (x[nn].juvXdir[(int) (x[nn].age)] * x[nn].swim()) ;
+      Ytemp = (int) (x[nn].juvYdir[(int) (x[nn].age)] * x[nn].swim()) ;
     } else {
       Xtemp = (int) x[nn].adultXdir[(int) (tofy)];
       Ytemp = (int) x[nn].adultYdir[(int) (tofy)];
