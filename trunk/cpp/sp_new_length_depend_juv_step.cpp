@@ -50,7 +50,7 @@ using namespace std ;
 #define LAMBDAsol  2.200    // mesh size selection factor //
 #define S_mesh     7.000    // mesh size //
 
-#define EGGWGHT    4.2E-3   // ton for 1 000 000 individuals, because for one individual it is in gram // 
+#define BORNWGHT   30       // ton for 1 000 000 individuals, because for one individual it is in gram // //Individuals get born at age 1//
 
 
 typedef float    (*FTYPE)[X_MAX][Y_MAX];
@@ -143,12 +143,12 @@ int main (int argc, char* argv[]) {
   FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp)  * 52);
   FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
 
-  //fstream GridFood  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
-  //fstream GridTemp  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
-  //fstream GridLMort ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
-  fstream GridFood  ("d:\\data\\food7d.dat", ios::in);
-  fstream GridTemp  ("d:\\data\\temp7d.dat", ios::in);
-  fstream GridLMort ("d:\\data\\larvalmortality7d.dat", ios::in);
+  fstream GridFood  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
+  fstream GridTemp  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
+  fstream GridLMort ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
+  //fstream GridFood  ("d:\\data\\food7d.dat", ios::in);
+  //fstream GridTemp  ("d:\\data\\temp7d.dat", ios::in);
+  //fstream GridLMort ("d:\\data\\larvalmortality7d.dat", ios::in);
   //fstream GridFood ("/media/n/Projecten/SpatialPlanning/svnjjp/data/food7d.dat", ios::in);
   //fstream GridTemp ("/media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
   //fstream GridLMort ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7d.dat", ios::in);
@@ -166,14 +166,14 @@ int main (int argc, char* argv[]) {
 
   for(int i=0; i < POPMAX; i++) {
     ple[i].sex    = (i%2)+1;
-    ple[i].weight = EGGWGHT;
+    ple[i].weight = BORNWGHT;
     ple[i].id     = id ; 
     ple[i].stage  = 1 ; /* everybody should be mature */
     ple[i].age    = 0 ;
     ple[i].u_m    = U_M ;
     ple[i].u_f    = U_F;
-    ple[i].X      = 50 ;
-    ple[i].Y      = 60 ;
+    ple[i].X      = 75 ;
+    ple[i].Y      = 53 ;
     int X         = ple[i].X;
     int Y         = ple[i].Y;
     int resX, resY;
@@ -191,20 +191,20 @@ int main (int argc, char* argv[]) {
       ple[i].adultXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
       ple[i].adultYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
     }
-    ple[i].weight = EGGWGHT;
+    ple[i].weight = BORNWGHT;
     id++;
   }
   
   for(int i=0; i < POPMAX; i++){
     sol[i].sex    = (i%2)+1;
-    sol[i].weight = EGGWGHT ;
+    sol[i].weight = BORNWGHT ;
     sol[i].id     = id ; 
     sol[i].stage  = 1 ; /* everybody should be mature */
     sol[i].age    = 0 ;
     sol[i].u_m    = U_M ;
     sol[i].u_f    = U_F;
-    sol[i].X      = 50 ;
-    sol[i].Y      = 60 ;
+    sol[i].X      = 75 ;
+    sol[i].Y      = 53 ;
     int X         = sol[i].X;
     int Y         = sol[i].Y;
     int resX, resY;
@@ -222,7 +222,7 @@ int main (int argc, char* argv[]) {
       sol[i].adultXdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 left or right //
       sol[i].adultYdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 up or down    //
     }   
-    sol[i].weight = EGGWGHT; 
+    sol[i].weight = BORNWGHT; 
     id++;
   }                                                    // end for loop over individuals /
   cout << "init plepop and solpop done" << endl;
@@ -407,7 +407,7 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
       }
       x[nu].age    = 0;
       x[nu].stage  = 1;
-      x[nu].weight = EGGWGHT;
+      x[nu].weight = BORNWGHT;
       
       id++;
     }                     // end creating individual   
@@ -423,8 +423,8 @@ void larvalmortality (struct ind x[], int Indvs, FTYPE larvmort  )  {
       psurv   = exp(-larvmort[5][x[n].X][x[n].Y]) ;                                       
       if(((double)rand()/((double)RAND_MAX+1)) > psurv){x[n].stage = 4 ; } // dead by natural causes  
      
-      x[n].X    = 50;                                                     // now that we know which larvae died because of wrong position, move to standard position // 
-      x[n].Y    = 60;  
+      x[n].X    = 75;                                                     // now that we know which larvae died because of wrong position, move to standard position // 
+      x[n].Y    = 53;  
     }
   }
 }
