@@ -1,14 +1,19 @@
 #include <iostream>
+#include <vector>
 #include <fstream>
 #include <cmath>
 #include <cstdlib> 
 
 using namespace std ;
 
-#define POPMAX 5000        // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
-#define T_MAX  3000        // Maximum number of years that sim runs // 
+#define POPMAX 5000         // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
 #define X_MAX  144          // Max X dimension of Lorna map/grid 144//
 #define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
+
+#define T_MAX  3000         // Maximum number of years that sim runs // 
+#define T_STEP 10           // Number of times output is written to disk
+#define T_DUR  780          // Number of timesteps output will be written to disk
+#define P_WRITE 5000        // Maximum number of individuals written to disk
 
 #define L_CHR1       157    // length of 1st chromosome (with juvenile strategy)     // 
 #define L_CHR2        52    // length of 2nd chromosome (with adult seasonal strategy) //
@@ -51,6 +56,7 @@ using namespace std ;
 #define S_mesh     7.000    // mesh size //
 
 #define BORNWGHT   30       // ton for 1 000 000 individuals, because for one individual it is in gram // //Individuals get born at age 1//
+#define PLUSGROUP  15       // age of plusgroup
 
 
 typedef float    (*FTYPE)[X_MAX][Y_MAX];
@@ -122,7 +128,9 @@ void   growth           (struct ind x[], int Indvs, double B, int tofy, FTYPE fo
 void   age              (struct ind x[], int Indvs)            ;
 void   maturation       (struct ind x[], int Indvs)           ;
 void   mortality        (struct ind x[], double lambda, int Indvs, double B );
-void   output           (struct ind x[], int t, int number);
+void   output           (struct ind x[], int t,     int number);
+void   popStruct        (fstream * mypopulation, struct ind x[], int Indvs, int t);
+int    writeOutput      (int t,  int write2file[]);
 int    alive2front      (struct ind x[])                       ;
 int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp);
 void   larvalmortality  (struct ind x[], int Indvs, FTYPE larvmort);
@@ -146,6 +154,9 @@ int main (int argc, char* argv[]) {
   fstream GridFood  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
   fstream GridTemp  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
   fstream GridLMort ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
+  
+  fstream mypopulation;
+  mypopulation.open("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\mypopulation.csv");
   //fstream GridFood  ("d:\\data\\food7d.dat", ios::in);
   //fstream GridTemp  ("d:\\data\\temp7d.dat", ios::in);
   //fstream GridLMort ("d:\\data\\larvalmortality7d.dat", ios::in);
@@ -161,6 +172,10 @@ int main (int argc, char* argv[]) {
  
   readgrid(&GridLMort , X_MAX, Y_MAX, 52, theLMort);	
   cout << "theLmort pos d16,x50,y60 " << theLMort[15][49][59]<<" should be xxx "  << endl;
+  
+  //Define sequence of timesteps to write to file
+  int write2file[T_STEP] = {0};
+  for(int Yr = 1; Yr < T_STEP; Yr++){ write2file[Yr] = ((int) (T_MAX / (T_STEP - 1))) + write2file[Yr -1];}
 
   /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
 
@@ -230,14 +245,15 @@ int main (int argc, char* argv[]) {
   int aliveple = POPMAX, alivesol = POPMAX; 
 
   ofstream myfile;
-  string filename("d:\\testoutputspat_mut");
+  string filename("D:\\testoutputspat_mut");
   string ext(".csv");
   filename += ( argv[1] + ext) ;
   myfile.open (filename.c_str() );
+  
 
   /* START SIM */
-  for(int t = 6; t < T_MAX; t++){    
-
+  for(int t = 0; t < T_MAX; t++){    
+    cout << "Start of simulation" << endl;
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;
         
@@ -285,18 +301,77 @@ int main (int argc, char* argv[]) {
     if(t%52 == 5){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
     if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
 
-    if ((t>428 && t <481)||( t > (T_MAX-53))){
-      for ( int nn = 0 ; nn <aliveple; nn++){ 
-        if(ple[nn].id > POPMAX){
-          myfile <<t <<"," << nn << ","<< ple[nn].id <<"," << (int) ple[nn].sex <<"," <<ple[nn].age<< ","<<(int) ple[nn].stage << "," << ple[nn].X<<","<<ple[nn].Y <<"," << ple[nn].weight <<   endl;
-        }
+    //Write output, settings at top of file
+    int idx;
+    int maxInd = min(P_WRITE,aliveple);
+    vector<int> printInd(maxInd);
+    idx = writeOutput(t, write2file);
+    if(idx > 0){                     //If you need to print output
+      if(idx == 2){                  //If first point in time to print output
+                                     //Choose randomly a number of individuals
+        if((int) maxInd == (int) aliveple){      //If all species alive is smaller than P_WRITE       
+        //cout << "maxInd" << maxInd << "aliveple" << aliveple << "printInd" << printInd << endl;
+          for(int nn = 0; nn < maxInd; nn++){ printInd[nn] = nn;}
+        } else {
+            int notUnique = 0;
+            for(int nn = 0; nn < maxInd; nn++){
+              do{
+                notUnique = 0; 
+                printInd[nn] = ((int) ((double) rand()/RAND_MAX * maxInd));
+                for(int mm = 0; mm < nn; mm++){
+                  if(printInd[nn] == printInd[mm]){ notUnique = 1;}
+                }
+              } while(notUnique == 1);
+            }
+          }
       }
+      for(int nn = 0; nn < maxInd; nn++){
+        int mm = printInd[nn];
+        myfile <<t << "," <<       ple[mm].id          <<"," << (int) ple[mm].sex          <<"," <<       ple[mm].age          << "," << (int) ple[mm].stage 
+                   << "," <<       ple[mm].X           <<"," <<       ple[mm].Y            <<"," <<       ple[mm].weight       << "," << (int) ple[mm].juvXdir[t] 
+                   << "," << (int) ple[mm].juvYdir[t]  <<"," << (int) ple[mm].adultXdir[t] <<"," << (int) ple[mm].adultYdir[t] << endl;
+      }   
     }
-  }  
-
-  myfile.close() ;
+    
+    //Write output every 15 years (cycle of complete new population        
+    if(t % (52*PLUSGROUP) == 0){ popStruct(&mypopulation, ple,aliveple,t);}
+ 
+  } //end of timeloop
+     
+  myfile.close() ; mypopulation.close();
   return 0 ;  
 } 
+
+int writeOutput(int time, int file[]){
+        int res = 0;
+        for(int Yr = 0; Yr < T_STEP; Yr++){ 
+          if(time == file[Yr]){ res = 2;}
+          if((time - file[Yr]) < T_DUR & (time >= file[Yr])){ res = max(1,res);
+          } else {res = max(0,res);}
+        }
+        return((int) res);
+    }
+
+void popStruct (fstream * mypop, struct ind x[], int Indvs, int t){
+    
+    double cohort[PLUSGROUP] = {0};
+    double weight[PLUSGROUP] = {0};
+    double sex[PLUSGROUP]    = {0};
+    double stage[PLUSGROUP]  = {0};
+    for(int n = 0 ; n < Indvs ; n++){
+      int age = ((int) x[n].age / 52);
+      if(age > PLUSGROUP){ age = PLUSGROUP;}
+      cohort[age]++;
+      weight[age] += x[n].weight;
+      if(x[n].sex == 1){ sex[age]++;}
+      if(x[n].stage == 1){stage[age]++;}
+    }
+    
+    for(int nn = 0; nn <= PLUSGROUP; nn++){
+      *mypop << t << "," << cohort[nn] << "," << weight[nn] << "," << sex[nn] << "," << stage[nn] << endl;
+    }
+}
+
 
 void age (struct ind x[], int Indvs){
   for(int n = 0 ; n < Indvs ; n++) {x[n].age += 1 ; }       
