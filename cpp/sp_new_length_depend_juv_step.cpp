@@ -129,7 +129,7 @@ void   age              (struct ind x[], int Indvs)            ;
 void   maturation       (struct ind x[], int Indvs)           ;
 void   mortality        (struct ind x[], double lambda, int Indvs, double B );
 void   output           (struct ind x[], int t,     int number);
-void   popStruct        (fstream * mypopulation, struct ind x[], int Indvs, int t);
+void   popStruct        (ofstream &mypopulation, struct ind x[], int Indvs, int t);
 int    writeOutput      (int t,  int write2file[]);
 int    alive2front      (struct ind x[])                       ;
 int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp);
@@ -155,8 +155,8 @@ int main (int argc, char* argv[]) {
   fstream GridTemp  ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
   fstream GridLMort ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
   
-  fstream mypopulation;
-  mypopulation.open("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\mypopulation.csv");
+  ofstream mypopulation;
+  mypopulation.open("d:\\mypopulation.csv");
   //fstream GridFood  ("d:\\data\\food7d.dat", ios::in);
   //fstream GridTemp  ("d:\\data\\temp7d.dat", ios::in);
   //fstream GridLMort ("d:\\data\\larvalmortality7d.dat", ios::in);
@@ -334,7 +334,7 @@ int main (int argc, char* argv[]) {
     }
     
     //Write output every 15 years (cycle of complete new population        
-    if(t % (52*PLUSGROUP) == 0){ popStruct(&mypopulation, ple,aliveple,t);}
+    if(t % (52*PLUSGROUP) == 0){ popStruct(mypopulation, ple,aliveple,t);}
  
   } //end of timeloop
      
@@ -352,7 +352,7 @@ int writeOutput(int time, int file[]){
         return((int) res);
     }
 
-void popStruct (fstream * mypop, struct ind x[], int Indvs, int t){
+void popStruct (ofstream &mypop, struct ind x[], int Indvs, int t){
     
     double cohort[PLUSGROUP] = {0};
     double weight[PLUSGROUP] = {0};
@@ -368,7 +368,7 @@ void popStruct (fstream * mypop, struct ind x[], int Indvs, int t){
     }
     
     for(int nn = 0; nn <= PLUSGROUP; nn++){
-      *mypop << t << "," << cohort[nn] << "," << weight[nn] << "," << sex[nn] << "," << stage[nn] << endl;
+      mypop << t << "," << cohort[nn] << "," << weight[nn] << "," << sex[nn] << "," << stage[nn] << endl;
     }
 }
 
