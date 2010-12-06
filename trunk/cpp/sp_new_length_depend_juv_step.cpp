@@ -12,7 +12,7 @@ using namespace std ;
 
 #define T_MAX  3000         // Maximum number of years that sim runs // 
 #define T_STEP 10           // Number of times output is written to disk
-#define T_DUR  780          // Number of timesteps output will be written to disk
+#define A_MAX  780          // Number of timesteps output will be written to disk
 #define P_WRITE 5000        // Maximum number of individuals written to disk
 
 #define L_CHR1       157    // length of 1st chromosome (with juvenile strategy)     // 
@@ -174,7 +174,7 @@ int main (int argc, char* argv[]) {
   cout << "theLmort pos d16,x50,y60 " << theLMort[15][49][59]<<" should be xxx "  << endl;
   
   //Define sequence of timesteps to write to file
-  int write2file[T_STEP] = {0};
+  int write2file[T_STEP] = {6};
   for(int Yr = 1; Yr < T_STEP; Yr++){ write2file[Yr] = ((int) (T_MAX / (T_STEP - 1))) + write2file[Yr -1];}
 
   /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
@@ -252,7 +252,7 @@ int main (int argc, char* argv[]) {
   
 
   /* START SIM */
-  for(int t = 0; t < T_MAX; t++){    
+  for(int t = 6; t < T_MAX; t++){    
     cout << "Start of simulation" << endl;
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;
@@ -301,30 +301,31 @@ int main (int argc, char* argv[]) {
     if(t%52 == 5){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
     if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
 
+    if ((t>428 && t <481)||( t > (T_MAX-53))){
+      for ( int nn = 0 ; nn <aliveple; nn++){ 
+        if(ple[nn].id > POPMAX){
+          myfile <<t <<"," << nn << ","<< ple[nn].id <<"," << (int) ple[nn].sex <<"," <<ple[nn].age<< ","<<(int) ple[nn].stage << "," << ple[nn].X<<","<<ple[nn].Y <<"," << ple[nn].weight <<   endl;
+        }
+      }
+    }
+
     //Write output, settings at top of file
     int idx;
-    int maxInd = min(P_WRITE,aliveple);
-    vector<int> printInd(maxInd);
     idx = writeOutput(t, write2file);
+    int maxInd=1; vector<int> printInd(maxInd);
     if(idx > 0){                     //If you need to print output
       if(idx == 2){                  //If first point in time to print output
-                                     //Choose randomly a number of individuals
-        if((int) maxInd == (int) aliveple){      //If all species alive is smaller than P_WRITE       
-        //cout << "maxInd" << maxInd << "aliveple" << aliveple << "printInd" << printInd << endl;
-          for(int nn = 0; nn < maxInd; nn++){ printInd[nn] = nn;}
-        } else {
-            int notUnique = 0;
-            for(int nn = 0; nn < maxInd; nn++){
-              do{
-                notUnique = 0; 
-                printInd[nn] = ((int) ((double) rand()/RAND_MAX * maxInd));
-                for(int mm = 0; mm < nn; mm++){
-                  if(printInd[nn] == printInd[mm]){ notUnique = 1;}
-                }
-              } while(notUnique == 1);
-            }
-          }
+        int maxInd, mm = 0;
+        for(int nn = 0; nn < aliveple; nn++){
+          if(ple[n].age < 52){ maxInd++;}
+        }
+        vector<int> printInd(maxInd);
+        for(int nn = 0; nn <aliveple; nn++){
+          if(ple[nn].age < 52){ printInd[mm] = ple[nn].id;}
+          mm++;
+        }                               //Choose randomly a number of individuals
       }
+        
       for(int nn = 0; nn < maxInd; nn++){
         int mm = printInd[nn];
         myfile <<t << "," <<       ple[mm].id          <<"," << (int) ple[mm].sex          <<"," <<       ple[mm].age          << "," << (int) ple[mm].stage 
@@ -346,7 +347,7 @@ int writeOutput(int time, int file[]){
         int res = 0;
         for(int Yr = 0; Yr < T_STEP; Yr++){ 
           if(time == file[Yr]){ res = 2;}
-          if((time - file[Yr]) < T_DUR & (time >= file[Yr])){ res = max(1,res);
+          if((time - file[Yr]) < A_MAX & (time >= file[Yr])){ res = max(1,res);
           } else {res = max(0,res);}
         }
         return((int) res);
@@ -415,7 +416,7 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
   
   for(int n = 0 ; n < Indvs ; n++)  {
     if (x[n].stage <3)    {
-      if ( x[n].age > 780){x[n].stage = 4 ;                       // Animals older than 15 yrs die (necessary becaus they dont have movement strategy anymore 
+      if ( x[n].age > A_MAX){x[n].stage = 4 ;                       // Animals older than 15 yrs die (necessary becaus they dont have movement strategy anymore 
       } else{
              
         m_p     = (pow(x[n].weight , ETA)/52) ;                   // predation mortality due to foraging   
