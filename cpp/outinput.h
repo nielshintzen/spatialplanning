@@ -16,33 +16,34 @@ FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood)  * 52);
 FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp)  * 52);
 FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
 
-//OS = Windows
-fstream GridFood     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
-fstream GridTemp     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
-fstream GridLMort    ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
-ofstream mypopulation("D:\\mypopulation.csv", ios::out);
-ofstream myfile;
-string filename      ("D:\\testoutputspat_mut");  
-
-//OS = Linux
-//fstream GridFood     ("/media/n/Projecten/SpatialPlanning/svnjjp/data/food7d.dat", ios::in);
-//fstream GridTemp     ("/media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
-//fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7d.dat", ios::in);
-//ofstream mypopulation("~/mypopulation.csv", ios::out);
-//ofstream myfile;
-//string filename      ("~/testoutputspat_mut");  
 
 
+#ifdef __linux__
+  //OS = Linux
+  fstream GridFood     ("/media/n/Projecten/SpatialPlanning/svnjjp/data/food7d.dat", ios::in);
+  fstream GridTemp     ("/media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
+  fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7d.dat", ios::in);
+  ofstream mypopulation("~/mypopulation.csv", ios::out);
+  ofstream myfile;
+  string filename      ("~/testoutputspat_mut");  
+#else 
+  //OS = Windows
+  fstream GridFood     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
+  fstream GridTemp     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
+  fstream GridLMort    ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
+  ofstream mypopulation("D:\\mypopulation.csv", ios::out);
+  ofstream myfile;
+  string filename      ("D:\\testoutputspat_mut");
+#endif  
 
 //----------------------------------------------------------------------------//
 // Functions to deal with output //
 //----------------------------------------------------------------------------//
 
-void   output           (struct ind x[], int t,     int number);
-void   popStruct        (ofstream &mypopulation, struct ind x[], int Indvs, int t);
-int    writeOutput      (int t,  int write2file[]);
-void   readgrid         (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
-
+void          output           (struct ind x[], int t,     int number);
+void          writePopStruct   (ofstream &mypopulation, struct ind x[], int Indvs, int time);
+int           writeOutput      (int t,  int write2file[]);
+void          readgrid         (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
 
 int writeOutput(int time, int file[]){
         int res = 0;
@@ -54,7 +55,7 @@ int writeOutput(int time, int file[]){
         return((int) res);
     }
 
-void popStruct (ofstream &mypop, struct ind x[], int Indvs, int t){
+void writePopStruct (ofstream &mypop, struct ind x[], int Indvs, int time){
     
     double cohort[PLUSGROUP] = {0};
     double weight[PLUSGROUP] = {0};
@@ -70,7 +71,7 @@ void popStruct (ofstream &mypop, struct ind x[], int Indvs, int t){
     }
     
     for(int nn = 0; nn < PLUSGROUP; nn++){
-      mypop << t << "," << cohort[nn] << "," << weight[nn] << "," << sex[nn] << "," << stage[nn] << endl;
+      mypop << time << "," << cohort[nn] << "," << weight[nn] << "," << sex[nn] << "," << stage[nn] << endl;
     }
 }
 
@@ -91,4 +92,3 @@ void readgrid (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid)
 		}		   
     cout << ("Read grid finished") << endl << flush;
 }
-
