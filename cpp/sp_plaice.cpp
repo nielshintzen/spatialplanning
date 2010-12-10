@@ -4,13 +4,13 @@
 #include <cmath>
 #include <cstdlib>
 
-#define POPMAX 10000        // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
-#define T_MAX  4000         // Maximum number of years that sim runs // 
+#define POPMAX 20000        // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
+#define T_MAX  5000         // Maximum number of years that sim runs // 
 #define T_STEP 5            // Number of times output is written to disk
 #define A_MAX  780          // Number of timesteps output will be written to disk
 #define P_WRITE 5000        // Maximum number of individuals written to disk
 
-#define R1ple      9.0E3    // stock recruitment parameters, This means that max 900 individuals are born (being 900 million individuals in field), matches up with weights//
+#define R1ple      9.0E2    // stock recruitment parameters, This means that max 900 individuals are born (being 900 million individuals in field), matches up with weights//
 #define R2ple      3.0E3    // stock recruitment parameters //
 #define R1sol      9.0E2    // stock recruitment parameters //
 #define R2sol      3.0E3    // stock recruitment parameters //
@@ -52,7 +52,7 @@ int main (int argc, char* argv[]) {
     ple[i].weight = BORNWGHT;
     ple[i].id     = id ; 
     ple[i].stage  = 1 ; /* everybody should be mature */
-    ple[i].age    = 0 ;
+    ple[i].age    = 52 ;
     ple[i].u_m    = U_M ;
     ple[i].u_f    = U_F;
     ple[i].X      = 75 ;
@@ -83,7 +83,7 @@ int main (int argc, char* argv[]) {
     sol[i].weight = BORNWGHT ;
     sol[i].id     = id ; 
     sol[i].stage  = 1 ; /* everybody should be mature */
-    sol[i].age    = 0 ;
+    sol[i].age    = 52 ;
     sol[i].u_m    = U_M ;
     sol[i].u_f    = U_F;
     sol[i].X      = 75 ;
@@ -153,10 +153,10 @@ int main (int argc, char* argv[]) {
     growth     (ple, aliveple, Bnurseple, t % 52, theFood, theTemp) ;                        // Function of growth //   
     growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp) ;                        // Function of growth //    
    
-    maturation (ple, aliveple)   ;                                                            // Function of maturation //
-    maturation (sol, alivesol)   ;                                                            // Function of maturation //
+    if(t%52 == 10 ) maturation (ple, aliveple)   ; //Checked with Cindy, gonads start to develop in March // Function of maturation //
+    if(t%52 == 10 ) maturation (sol, alivesol)   ;                                           // Function of maturation //
     
-    //cout<<"t " << t << " ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; //output(ple,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals // 
+    cout<<"t " << t << " ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; //output(ple,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals // 
     //cout<<"t " << t << " ssb sol " << Bspawnsol<<" num sol "<<alivesol<< endl; //output(sol,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals //
   
     aliveple = alive2front (ple)  ;                                                           // shuffle so that alives are in front*/
@@ -172,7 +172,8 @@ int main (int argc, char* argv[]) {
     int idx =0;
     idx = writeOutput(t, write2file);
     if(idx > 0){                     //If you need to print output
-      if(idx == 2){                  //If first point in time to print output     
+      if(idx == 2){                  //If first point in time to print output
+    //if ((t==6) ||( (t+A_MAX) % (int)(T_MAX/(T_STEP-1)) < 52 && t % 52 == 6)){
         int nn  = aliveple;
         maxid   = ple[nn].id;
         int age =ple[nn].age;
@@ -182,12 +183,13 @@ int main (int argc, char* argv[]) {
         minid = ple[nn].id;
         cout << "minid " << minid << " maxid " << maxid << endl;                                  
       }
+    //} else if ((t < 6 + A_MAX) ||( (t + A_MAX)% (int)(T_MAX/(T_STEP-1)) < A_MAX +52)){
       for(int nn = 0; nn < aliveple; nn++){
         if(ple[nn].stage < 3 && (ple[nn].id > minid & ple[nn].id < maxid)){
           myfile <<t << "," <<       ple[nn].id          << "," << (int) ple[nn].sex          << "," <<       ple[nn].age                           << "," << (int) ple[nn].stage 
                      << "," <<       ple[nn].X           << "," <<       ple[nn].Y            << "," <<       ple[nn].weight       
                      << "," << (int) ple[nn].juvXdir[(int) (ple[nn].age)]                     << "," << (int) ple[nn].juvYdir[(int) (ple[nn].age)]  
-                     << "," << (int) ple[nn].adultXdir[t%52]                                  << "," << (int) ple[nn].adultYdir[t%52]               << endl;
+                     << "," << (int) ple[nn].adultXdir[t+1%52]                                  << "," << (int) ple[nn].adultYdir[t+1%52]               << endl;
         }
       }   
     }
