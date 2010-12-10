@@ -38,20 +38,9 @@ FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
 // Functions to deal with output //
 //----------------------------------------------------------------------------//
 
-void          output           (struct ind x[], int t,     int number);
 void          writePopStruct   (ofstream &mypopulation, struct ind x[], int Indvs, int time);
 int           writeOutput      (int t,  int write2file[]);
 void          readgrid         (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
-
-int writeOutput(int time, int file[]){
-        int res = 0;
-        for(int Yr = 0; Yr < T_STEP; Yr++){ 
-          if(time == file[Yr]){ res = 2;}
-          if((time - file[Yr]) < A_MAX & (time >= file[Yr])){ res = max(1,res);
-          } else {res = max(0,res);}
-        }
-        return((int) res);
-    }
 
 void writePopStruct (ofstream &mypop, struct ind x[], int Indvs, int time){
     
