@@ -1,5 +1,3 @@
-#include <fstream>
-
 #define X_MAX  144          // Max X dimension of Lorna map/grid 144//
 #define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
 

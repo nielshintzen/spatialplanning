@@ -2,8 +2,6 @@
 // Define biological functions
 //----------------------------------------------------------------------------//
 
-#define POPMAX 10000         // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
-
 #define M_B        1.5E-4   // baseline mortality (old) divided by 365 to go to days //
 #define ETA       -0.280    // exponent of size dependent natural mortality //
 #define F_MAX      0.0      // fishing mortality //
@@ -158,7 +156,8 @@ void larvalmortality (struct ind x[], int Indvs, FTYPE larvmort  )  {
       if(((double)rand()/((double)RAND_MAX+1)) > psurv){x[n].stage = 4 ; } // dead by natural causes  
      
       x[n].X    = 75;                                                     // now that we know which larvae died because of wrong position, move to standard position // 
-      x[n].Y    = 53;  
+      x[n].Y    = 53;
+      x[n].age  = 52;                                                     // they are born as 1 year olds, so set age at 52  
     }
   }
 }
