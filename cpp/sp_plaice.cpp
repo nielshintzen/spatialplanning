@@ -175,7 +175,7 @@ int main (int argc, char* argv[]) {
         int age =ple[nn].age;
         do{ age = ple[nn].age;
           nn--;
-        } while (nn > aliveple - P_WRITE && age <52);
+        } while (nn > aliveple - P_WRITE && age <= 53);
         minid = ple[nn].id;
         cout << "minid " << minid << " maxid " << maxid << endl;                                  
     } else if ((t < 6 + A_MAX) ||( (t + A_MAX)% (int)(T_MAX/(T_STEP-1)) < A_MAX +52)){
