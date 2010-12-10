@@ -40,10 +40,6 @@ int main (int argc, char* argv[]) {
   readgrid(&GridLMort , X_MAX, Y_MAX, 52, theLMort);	
   cout << "Read Larval Mortality completed" << endl;
   
-  //Define sequence of timesteps to write to file
-  int write2file[T_STEP] = {6};
-  for(int Yr = 1; Yr < T_STEP; Yr++){ write2file[Yr] = ((int) ((T_MAX - 6) / (T_STEP - 1))) + write2file[Yr -1];}
-  write2file[T_STEP]     = write2file[T_STEP] - A_MAX;  //Starting writing to file at end of step makes no sense therefore substract A_MAX
   int minid, maxid;
 
   /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
