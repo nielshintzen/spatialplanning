@@ -169,11 +169,7 @@ int main (int argc, char* argv[]) {
     if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
 
     //Write output
-    int idx =0;
-    idx = writeOutput(t, write2file);
-    if(idx > 0){                     //If you need to print output
-      if(idx == 2){                  //If first point in time to print output
-    //if ((t==6) ||( (t+A_MAX) % (int)(T_MAX/(T_STEP-1)) < 52 && t % 52 == 6)){
+    if ((t==6) ||( (t+A_MAX) % (int)(T_MAX/(T_STEP-1)) < 52 && t % 52 == 6)){
         int nn  = aliveple;
         maxid   = ple[nn].id;
         int age =ple[nn].age;
@@ -182,14 +178,13 @@ int main (int argc, char* argv[]) {
         } while (nn > aliveple - P_WRITE && age <52);
         minid = ple[nn].id;
         cout << "minid " << minid << " maxid " << maxid << endl;                                  
-      }
-    //} else if ((t < 6 + A_MAX) ||( (t + A_MAX)% (int)(T_MAX/(T_STEP-1)) < A_MAX +52)){
+    } else if ((t < 6 + A_MAX) ||( (t + A_MAX)% (int)(T_MAX/(T_STEP-1)) < A_MAX +52)){
       for(int nn = 0; nn < aliveple; nn++){
         if(ple[nn].stage < 3 && (ple[nn].id > minid & ple[nn].id < maxid)){
           myfile <<t << "," <<       ple[nn].id          << "," << (int) ple[nn].sex          << "," <<       ple[nn].age                           << "," << (int) ple[nn].stage 
                      << "," <<       ple[nn].X           << "," <<       ple[nn].Y            << "," <<       ple[nn].weight       
                      << "," << (int) ple[nn].juvXdir[(int) (ple[nn].age)]                     << "," << (int) ple[nn].juvYdir[(int) (ple[nn].age)]  
-                     << "," << (int) ple[nn].adultXdir[t+1%52]                                  << "," << (int) ple[nn].adultYdir[t+1%52]               << endl;
+                     << "," << (int) ple[nn].adultXdir[t+1%52]                                << "," << (int) ple[nn].adultYdir[t+1%52]             << endl;
         }
       }   
     }
