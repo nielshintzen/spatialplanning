@@ -1,7 +1,3 @@
-//----------------------------------------------------------------------------//
-// Define biological functions
-//----------------------------------------------------------------------------//
-
 #define M_B        1.5E-4   // baseline mortality (old) divided by 365 to go to days //
 #define ETA       -0.280    // exponent of size dependent natural mortality //
 #define F_MAX      0.0      // fishing mortality //
@@ -13,11 +9,12 @@
 #define BORNWGHT   30       // ton for 1 000 000 individuals, because for one individual it is in gram // //Individuals get born at age 1//
 #define PLUSGROUP  15       // age of plusgroup
 
-
 using namespace std ;
 typedef float    (*FTYPE)[X_MAX][Y_MAX];
 
-
+//----------------------------------------------------------------------------//
+// Define biological functions
+//----------------------------------------------------------------------------//
 void   move             (struct ind x[], int Indvs, int tofy, FTYPE temp) ; 
 void   growth           (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp) ;
 void   age              (struct ind x[], int Indvs)            ;
@@ -27,8 +24,6 @@ int    alive2front      (struct ind x[])                       ;
 int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp);
 void   larvalmortality  (struct ind x[], int Indvs, FTYPE larvmort);
 double rand_sex         ();
-
-
 
 void age (struct ind x[], int Indvs){
   for(int n = 0 ; n < Indvs ; n++) {x[n].age += 1 ; }       
@@ -50,7 +45,6 @@ void move (struct ind x[], int Indvs, int tofy, FTYPE temp){
 }  
 
 void growth (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp){
- 
   for(int n = 0 ; n < Indvs ; n++){	  
      x[n].weight  = x[n].weight + x[n].growth(food[tofy][x[n].X][x[n].Y], temp[tofy][x[n].X][x[n].Y]);
    }                
@@ -154,7 +148,6 @@ void larvalmortality (struct ind x[], int Indvs, FTYPE larvmort  )  {
     if (x[n].age ==0)    {                                                 // only individuals of 0 days old suffer from larval mortality 
       psurv   = exp(-larvmort[5][x[n].X][x[n].Y]) ;                                       
       if(((double)rand()/((double)RAND_MAX+1)) > psurv){x[n].stage = 4 ; } // dead by natural causes  
-     
       x[n].X    = 75;                                                     // now that we know which larvae died because of wrong position, move to standard position // 
       x[n].Y    = 53;
       x[n].age  = 52;                                                     // they are born as 1 year olds, so set age at 52  
