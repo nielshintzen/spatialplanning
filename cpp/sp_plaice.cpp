@@ -16,11 +16,13 @@
 #define R2sol      3.0E3    // stock recruitment parameters //
 #define MUT_RATE   0.050    // mutation rate //
 
+unsigned long int id=0;
+unsigned long int minid, maxid;
+
 #include "class.h"          //Defines the class of the individual  
 #include "outinput.h"       //Functions to deal with input and output
 #include "biology.h"        //Functions to deal with the biology as reproduction and maturation
 #include "utils.h"          //Functions to get min, max etc
-
 
 struct ind ple[POPMAX]; 
 struct ind sol[POPMAX]; 
@@ -39,8 +41,6 @@ int main (int argc, char* argv[]) {
  
   readgrid(&GridLMort , X_MAX, Y_MAX, 52, theLMort);	
   cout << "Read Larval Mortality completed" << endl;
-  
-  int minid, maxid;
 
   /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
   for(int i=0; i < POPMAX; i++) {
@@ -78,7 +78,7 @@ int main (int argc, char* argv[]) {
     sol[i].sex    = (i%2)+1;
     sol[i].weight = BORNWGHT ;
     sol[i].id     = id ; 
-    sol[i].stage  = 1 ; /* everybody should be mature */
+    sol[i].stage  = 1 ;                                       
     sol[i].age    = 52 ;
     sol[i].u_m    = U_M ;
     sol[i].u_f    = U_F;
@@ -87,9 +87,9 @@ int main (int argc, char* argv[]) {
     int X         = sol[i].X;
     int Y         = sol[i].Y;
     int resX, resY;
-    for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
-        do{sol[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
-           sol[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
+    for(int dd=0; dd < L_CHR1;  dd++){                         //check juvenile strategy    
+        do{sol[i].juvXdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 left or right //
+           sol[i].juvYdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 up or down    //
            resX = (int) (sol[i].juvXdir[dd] * sol[i].swim()) ;
            resY = (int) (sol[i].juvYdir[dd] * sol[i].swim()) ;            
         } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) ||((X + resX) > X_MAX) ||((Y + resY )< 0) ||((Y + resY) > Y_MAX));
@@ -97,23 +97,20 @@ int main (int argc, char* argv[]) {
         Y += resY;
         sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y]);      
     }   
-    for(int dd=0; dd < L_CHR2 ;  dd++){ //check juvenile strategy    
-      sol[i].adultXdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 left or right //
-      sol[i].adultYdir[dd] = (char)((rand()% 11) -5); // Movement of maximum 5 up or down    //
+    for(int dd=0; dd < L_CHR2 ;  dd++){                        //check juvenile strategy    
+      sol[i].adultXdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 left or right //
+      sol[i].adultYdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 up or down    //
     }   
     sol[i].weight = BORNWGHT; 
     id++;
-  }                                                    // end for loop over individuals /
+  }                                                            // end for loop over individuals /
   cout << "Initialisation of Plaice and Sole done" << endl;
 
   int aliveple = POPMAX, alivesol = POPMAX; 
 
-  //Open file to write output to disk
-  string ext(".csv");
+  string ext(".csv");                                          //Open file to write output to disk 
   filename += ( argv[1] + ext) ;
   myfile.open (filename.c_str() );
-  //mypopulation.open();
-  
   
   /* START SIM */
   for(int t = 6; t < T_MAX; t++){    
@@ -172,8 +169,7 @@ int main (int argc, char* argv[]) {
         do{ age = ple[nn].age;
           nn--;
         } while (nn > aliveple - P_WRITE && age <= 53);
-        minid = ple[nn].id;
-        cout << "minid " << minid << " maxid " << maxid << endl;                                  
+        minid = ple[nn].id;                                
     } else if ((t < 6 + A_MAX) ||( (t + A_MAX)% (int)(T_MAX/(T_STEP-1)) < A_MAX +52)){
       for(int nn = 0; nn < aliveple; nn++){
         if(ple[nn].stage < 3 && (ple[nn].id > minid & ple[nn].id < maxid)){
