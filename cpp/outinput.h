@@ -1,7 +1,6 @@
-#define X_MAX  144          // Max X dimension of Lorna map/grid 144//
-#define Y_MAX  120          // Max X dimension of Lorna map/grid 144///
-
-#define PLUSGROUP  15       // age of plusgroup
+#define X_MAX     144   // Max X dimension of Lorna map//
+#define Y_MAX     120   // Max X dimension of Lorna map//
+#define PLUSGROUP  15
 
 using namespace std ;
 typedef float    (*FTYPE)[X_MAX][Y_MAX];
@@ -9,12 +8,9 @@ typedef float    (*FTYPE)[X_MAX][Y_MAX];
 //----------------------------------------------------------------------------//
 // Reading in- and output files // 
 //----------------------------------------------------------------------------//
-
 FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood)  * 52);
 FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp)  * 52);
 FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
-
-
 
 #ifdef __linux__
   //OS = Linux
@@ -37,13 +33,11 @@ FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
 //----------------------------------------------------------------------------//
 // Functions to deal with output //
 //----------------------------------------------------------------------------//
+void  writePopStruct (ofstream &mypopulation, struct ind x[], int Indvs, int time);
+void  output         (struct ind x[],int t, int number);
+void  readgrid       (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
 
-void          writePopStruct   (ofstream &mypopulation, struct ind x[], int Indvs, int time);
-int           writeOutput      (int t,  int write2file[]);
-void          readgrid         (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
-
-void writePopStruct (ofstream &mypop, struct ind x[], int Indvs, int time){
-    
+void writePopStruct (ofstream &mypop, struct ind x[], int Indvs, int time){  
     double cohort[PLUSGROUP] = {0};
     double weight[PLUSGROUP] = {0};
     double sex[PLUSGROUP]    = {0};
@@ -55,8 +49,7 @@ void writePopStruct (ofstream &mypop, struct ind x[], int Indvs, int time){
       weight[age] += x[n].weight;
       if(x[n].sex == 1){ sex[age]++;}
       if(x[n].stage == 1){stage[age]++;}
-    }
-    
+    } 
     for(int nn = 0; nn < PLUSGROUP; nn++){
       mypop << time << "," << cohort[nn] << "," << weight[nn] << "," << sex[nn] << "," << stage[nn] << endl;
     }
@@ -68,14 +61,12 @@ void output(struct ind x[],int t, int number){
   }
 }
 
-void readgrid (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid)
-{
+void readgrid (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid){
    for (int tt = 0; tt < anTmax; tt++){
   	 for (int yy = 0; yy < anYmax; yy++){
 	     for (int xx = 0; xx < anXmax; xx++){
  				  *aFile >> (agrid[tt][xx][yy]); 
        }
-      }
-		}		   
-    cout << ("Read grid finished") << endl << flush;
+     }
+	}		   
 }
