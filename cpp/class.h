@@ -26,8 +26,6 @@
 #define U_F        24.70    // intercept PMRN by sex //
 #define OMEGA      2.275598 // PMRN vertical width //
 
-unsigned long int id=0;
-
 //----------------------------------------------------------------------------//
 // Define class of individual //
 //----------------------------------------------------------------------------//

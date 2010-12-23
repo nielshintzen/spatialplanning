@@ -110,7 +110,9 @@ int main (int argc, char* argv[]) {
 
   string ext(".csv");                                          //Open file to write output to disk 
   filename += ( argv[1] + ext) ;
+  popname += (argv[1] + ext);
   myfile.open (filename.c_str() );
+  mypopulation.open(popname.c_str());
   
   /* START SIM */
   for(int t = 6; t < T_MAX; t++){    
@@ -176,7 +178,7 @@ int main (int argc, char* argv[]) {
           myfile <<t << "," <<       ple[nn].id          << "," << (int) ple[nn].sex          << "," <<       ple[nn].age                           << "," << (int) ple[nn].stage 
                      << "," <<       ple[nn].X           << "," <<       ple[nn].Y            << "," <<       ple[nn].weight       
                      << "," << (int) ple[nn].juvXdir[(int) (ple[nn].age)]                     << "," << (int) ple[nn].juvYdir[(int) (ple[nn].age)]  
-                     << "," << (int) ple[nn].adultXdir[t+1%52]                                << "," << (int) ple[nn].adultYdir[t+1%52]             << endl;
+                     << "," << (int) ple[nn].adultXdir[(t+1)%52]                              << "," << (int) ple[nn].adultYdir[(t+1)%52]           << endl;
         }
       }   
     }
