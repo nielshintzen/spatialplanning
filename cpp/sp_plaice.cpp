@@ -151,8 +151,8 @@ int main (int argc, char* argv[]) {
     if(t%52 == 10 ) maturation (ple, aliveple)   ; //Checked with Cindy, gonads start to develop in March // Function of maturation //
     if(t%52 == 10 ) maturation (sol, alivesol)   ;                                           // Function of maturation //
     
-    cout<<"t " << t << " ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; //output(ple,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals // 
-    //cout<<"t " << t << " ssb sol " << Bspawnsol<<" num sol "<<alivesol<< endl; //output(sol,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals //
+    cout<<"i " <<argv[1] << " t " << t << " ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; //output(ple,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals // 
+    //cout<<"i " <<argv[1] << " t " << t << " ssb sol " << Bspawnsol<<" num sol "<<alivesol<< endl; //output(sol,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals //
   
     aliveple = alive2front (ple)  ;                                                           // shuffle so that alives are in front*/
     alivesol = alive2front (sol)  ;                                                           // shuffle so that alives are in front*/
