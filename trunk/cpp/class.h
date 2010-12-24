@@ -79,14 +79,14 @@ double ind::Lp50()
 
 double ind::growth(double fd, double tmp )
 { 
-  return( 7 * ((k*((46.0*fd)/(foodh+(46.0*fd)))*(Pam*
-                 (exp((TA/Tref)-(TA/(273+(tmp+0.0))))*((1+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1* length() )))-(TAhigh/Tref)))
-                 /(1+exp((TAlow/(273.0+(tmp+0.0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1* length() )))-(TAhigh/(273.0+(tmp+0)))))))))
-                 *pow((pow((m* length() ),3)),0.666666) -((pm*(exp((TA/Tref)-(TA/(273+(tmp+0.0))))))*(pow((m* length() ),3))))/
+  return( 7.0 * ((k*((46.0*fd)/(foodh+(46.0*fd)))*(Pam*
+                 (exp((TA/Tref)-(TA/(273.0+(tmp+0.0))))*((1.0+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1* length() )))-(TAhigh/Tref)))
+                 /(1+exp((TAlow/(273.0+(tmp+0.0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1* length() )))-(TAhigh/(273.0+(tmp+0.0)))))))))
+                 *pow((pow((m* length() ),3)),0.666666) -((pm*(exp((TA/Tref)-(TA/(273.0+(tmp+0.0))))))*(pow((m* length() ),3))))/
                  ((k*((46.0*fd)/(foodh+(46.0*fd)))*Em)+Eg));
 }
 
 double ind::swim()
 { 
-  return(length()/20);
+  return(length()/30);
 }
