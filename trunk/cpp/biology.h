@@ -16,7 +16,7 @@ typedef float    (*FTYPE)[X_MAX][Y_MAX];
 // Define biological functions
 //----------------------------------------------------------------------------//
 void   move             (struct ind x[], int Indvs, int tofy, FTYPE temp) ; 
-void   growth           (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp) ;
+void   growth           (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp, double f1[]) ;
 void   age              (struct ind x[], int Indvs)            ;
 void   maturation       (struct ind x[], int Indvs)           ;
 void   mortality        (struct ind x[], double lambda, int Indvs, double B );
@@ -44,9 +44,9 @@ void move (struct ind x[], int Indvs, int tofy, FTYPE temp){
   }                                                           // end for loop over individuals //
 }  
 
-void growth (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp){
+void growth (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp, double f1[]){
   for(int n = 0 ; n < Indvs ; n++){	  
-     x[n].weight  = x[n].weight + x[n].growth(food[tofy][x[n].X][x[n].Y], temp[tofy][x[n].X][x[n].Y]);
+     x[n].weight  = x[n].weight + x[n].growth(food[tofy][x[n].X][x[n].Y], temp[tofy][x[n].X][x[n].Y],f1[tofy]);
    }                
 }      
     
