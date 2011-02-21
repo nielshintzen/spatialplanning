@@ -67,7 +67,7 @@ int main (int argc, char* argv[]) {
         } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) || (( X + resX) > X_MAX) ||(( Y + resY) < 0) || ((Y + resY) > Y_MAX));
         X += resX;
         Y += resY;
-        ple[i].weight  = ple[i].weight  + ple[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y]);      
+        ple[i].weight  = ple[i].weight  + ple[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y],theGrowthGam[(dd+6)%52]);      
     }    
     for(int dd=0; dd <L_CHR2;  dd++){ //check juvenile strategy    
       ple[i].adultXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
@@ -98,7 +98,7 @@ int main (int argc, char* argv[]) {
         } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) ||((X + resX) > X_MAX) ||((Y + resY )< 0) ||((Y + resY) > Y_MAX));
         X += resX;
         Y += resY;
-        sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y]);      
+        sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y],theGrowthGam[(dd+6)%52]);      
     }   
     for(int dd=0; dd < L_CHR2 ;  dd++){                        //check juvenile strategy    
       sol[i].adultXdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 left or right //
@@ -148,8 +148,8 @@ int main (int argc, char* argv[]) {
     mortality(ple, LAMBDAple, aliveple ,Bnurseple ) ;                                         // Function mortality //
     mortality(sol, LAMBDAsol, alivesol ,Bnursesol ) ;                                         // Function mortality */
     
-    growth     (ple, aliveple, Bnurseple, t % 52, theFood, theTemp) ;                        // Function of growth //   
-    growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp) ;                        // Function of growth //    
+    growth     (ple, aliveple, Bnurseple, t % 52, theFood, theTemp, theGrowthGam) ;                        // Function of growth //   
+    growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp, theGrowthGam) ;                        // Function of growth //    
    
     if(t%52 == 10 ) maturation (ple, aliveple)   ; //Checked with Cindy, gonads start to develop in March // Function of maturation //
     if(t%52 == 10 ) maturation (sol, alivesol)   ;                                           // Function of maturation //
