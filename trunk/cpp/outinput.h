@@ -11,12 +11,14 @@ typedef float    (*FTYPE)[X_MAX][Y_MAX];
 FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood)  * 52);
 FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp)  * 52);
 FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
+double theGrowthGam[52];
 
 #ifdef __linux__
   //OS = Linux
   fstream GridFood     ("/media/n/Projecten/SpatialPlanning/svnjjp/data/food7d.dat", ios::in);
   fstream GridTemp     ("/media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
   fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7d.dat", ios::in);
+  fstream WeekPropFood ("/media/n/Projecten/SpatialPlanning/svnjjp/data/growthgam7d.dat", ios::in);                                                          
   ofstream mypopulation;
   string popname       ("~/mypopulation_mut"); 
   ofstream myfile;
@@ -26,6 +28,7 @@ FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
   fstream GridFood     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
   fstream GridTemp     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
   fstream GridLMort    ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
+  fstream WeekPropFood ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\growthgam7d.dat", ios::in);
   ofstream mypopulation;
   string popname       ("D:\\mypopulation");
   ofstream myfile;
@@ -38,6 +41,7 @@ FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
 void  writePopStruct (ofstream &mypopulation, struct ind x[], int Indvs, int time);
 void  output         (struct ind x[],int t, int number);
 void  readgrid       (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid);
+void  readgrowthgam  (fstream * aFile, int weekMax,double agrowthgam[]);
 
 void writePopStruct (ofstream &mypop, struct ind x[], int Indvs, int time){  
     double cohort[PLUSGROUP] = {0};
@@ -72,3 +76,12 @@ void readgrid (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid)
      }
 	}		   
 }
+
+void readgrowthgam (fstream * aFile, int weekMax,double agrowthgam[]){
+     for(int tt = 0; tt < weekMax; tt++){
+       *aFile >> (agrowthgam[tt]);
+     }
+}
+             
+
+

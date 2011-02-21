@@ -41,6 +41,9 @@ int main (int argc, char* argv[]) {
  
   readgrid(&GridLMort , X_MAX, Y_MAX, 52, theLMort);	
   cout << "Read Larval Mortality completed" << endl;
+  
+  readgrowthgam(&WeekPropFood,52,theGrowthGam);
+  cout << "Read growth gam completed" << endl;
 
   /* INITIALISE INDIVIDUALS AT START, FIRST PLAICE, THEN SOLE */
   for(int i=0; i < POPMAX; i++) {
