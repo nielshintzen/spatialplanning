@@ -78,18 +78,10 @@ double ind::Lp50()
    return u() + O_p * (age/52) ; // not sure if division by 52 (weeks) is the most correct/convenient way, but I changed age to be weeks instead years)  
 }
 
-//double ind::growth(double fd, double tmp )
-//{ 
-//  return( 7.0 * ((k*((46.0*fd)/(foodh+(46.0*fd)))*(Pam*
-//                 (exp((TA/Tref)-(TA/(273.0+(tmp+0.0))))*((1.0+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1* length() )))-(TAhigh/Tref)))
-//                 /(1+exp((TAlow/(273.0+(tmp+0.0)))-(TAlow/TL))+exp((TAhigh/(TH-(0.1* length() )))-(TAhigh/(273.0+(tmp+0.0)))))))))
-//                 *pow((pow((m* length() ),3)),0.666666) -((pm*(exp((TA/Tref)-(TA/(273.0+(tmp+0.0))))))*(pow((m* length() ),3))))/
-//                 ((k*((46.0*fd)/(foodh+(46.0*fd)))*Em)+Eg));
-//}
 
 double ind::growth(double fd, double tmp, double f1)
 {
- double f = ((46 * f2 * fd) / (foodh + (46 * f2 * fd))) * f1;
+ double f = ((46.0 * f2 * fd) / (foodh + (46.0 * f2 * fd))) * f1;
  return( 7.0 * ((k * f * (Pam *
          (exp((TA/Tref)-(TA/(273.0+(tmp+0.0))))
          *((1.0+exp((TAlow/Tref)-(TAlow/TL))+exp((TAhigh/(TH-(0.1* length() )))-(TAhigh/Tref)))
