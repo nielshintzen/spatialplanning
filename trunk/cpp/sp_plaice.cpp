@@ -169,7 +169,7 @@ int main (int argc, char* argv[]) {
     //Write output
     if ((t==6) ||( (t+A_MAX) % (int)(T_MAX/(T_STEP-1)) < 52 && t % 52 == 6)){
         int nn  = aliveple;
-        int age =ple[nn].age;
+        int age = ple[nn].age;
         do{ age = ple[nn].age;
           nn--;
         } while ((nn > (aliveple - P_WRITE)) && (age <= 53));
