@@ -24,24 +24,24 @@ unsigned long int minid, maxid;
 #include "biology.h"        //Functions to deal with the biology as reproduction and maturation
 #include "utils.h"          //Functions to get min, max etc
 
-struct ind ple[POPMAX]; 
-struct ind sol[POPMAX]; 
+struct ind ple[POPMAX];
+struct ind sol[POPMAX];
 
 int main (int argc, char* argv[]) {
 
   srand(atoi(argv[1])); //Take argument to write special extension to file
   double Btotalple, Bnurseple, Bspawnple, Btotalsol, Bnursesol, Bspawnsol ;    /* biomass on nursery, total biomass */
 
-  //Read in the data 
+  //Read in the data
   readgrid(&GridFood , X_MAX, Y_MAX, 52, theFood);
   cout << "Read Food completed" << endl;
- 	
-  readgrid(&GridTemp , X_MAX, Y_MAX, 52, theTemp);	
+
+  readgrid(&GridTemp , X_MAX, Y_MAX, 52, theTemp);
   cout << "Read Temp completed" << endl;
- 
-  readgrid(&GridLMort , X_MAX, Y_MAX, 52, theLMort);	
+
+  readgrid(&GridLMort , X_MAX, Y_MAX, 52, theLMort);
   cout << "Read Larval Mortality completed" << endl;
-  
+
   readgrowthgam(&WeekPropFood,52,theGrowthGam);
   cout << "Read growth gam completed" << endl;
 
@@ -76,7 +76,7 @@ int main (int argc, char* argv[]) {
     ple[i].weight = BORNWGHT;
     id++;
   }
-  
+
   for(int i=0; i < POPMAX; i++){
     sol[i].sex    = (i%2)+1;
     sol[i].weight = BORNWGHT ;
@@ -116,7 +116,7 @@ int main (int argc, char* argv[]) {
   popname += (argv[1] + ext);
   myfile.open (filename.c_str() );
   mypopulation.open(popname.c_str());
-  
+
   /* START SIM */
   for(int t = 6; t < T_MAX; t++){    
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
@@ -174,7 +174,7 @@ int main (int argc, char* argv[]) {
           nn--;
         } while ((nn > (aliveple - P_WRITE)) && (age <= 53));
         minid = ple[nn + 1].id;
-        maxid = ple[aliveple - 1].id;                                
+        maxid = ple[aliveple - 1].id;
     } else if ((t < 6 + A_MAX) ||( (t + A_MAX)% (int)(T_MAX/(T_STEP-1)) < A_MAX +52)){
       for(int nn = 0; nn < aliveple; nn++){
         if(ple[nn].stage < 3 && (ple[nn].id > minid & ple[nn].id < maxid)){
@@ -188,9 +188,9 @@ int main (int argc, char* argv[]) {
 
     //Write output every 15 years (cycle of complete new population)        
     if(t % (A_MAX) == 5){ writePopStruct(mypopulation, ple,aliveple,t);}
- 
+
   } //end of timeloop
-     
+
   myfile.close() ; mypopulation.close();
   return 0 ;  
 } 
