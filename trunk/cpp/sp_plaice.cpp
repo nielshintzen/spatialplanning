@@ -19,7 +19,7 @@
 unsigned long int id=0;
 unsigned long int minid, maxid;
 
-#include "class.h"          //Defines the class of the individual  
+#include "class.h"          //Defines the class of the individual
 #include "outinput.h"       //Functions to deal with input and output
 #include "biology.h"        //Functions to deal with the biology as reproduction and maturation
 #include "utils.h"          //Functions to get min, max etc
@@ -49,7 +49,7 @@ int main (int argc, char* argv[]) {
   for(int i=0; i < POPMAX; i++) {
     ple[i].sex    = (i%2)+1;
     ple[i].weight = BORNWGHT;
-    ple[i].id     = id ; 
+    ple[i].id     = id ;
     ple[i].stage  = 1 ; /* everybody should be mature */
     ple[i].age    = 52 ;
     ple[i].u_m    = U_M ;
@@ -59,17 +59,17 @@ int main (int argc, char* argv[]) {
     int X         = ple[i].X;
     int Y         = ple[i].Y;
     int resX, resY;
-    for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy    
+    for(int dd=0; dd < L_CHR1;  dd++){ //check juvenile strategy
         do{ple[i].juvXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
            ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
            resX = (int) (ple[i].juvXdir[dd] * ple[i].swim()) ;
-           resY = (int) (ple[i].juvYdir[dd] * ple[i].swim()) ;            
+           resY = (int) (ple[i].juvYdir[dd] * ple[i].swim()) ;
         } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) || (( X + resX) > X_MAX) ||(( Y + resY) < 0) || ((Y + resY) > Y_MAX));
         X += resX;
         Y += resY;
         ple[i].weight  = ple[i].weight  + ple[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y],theGrowthGam[(dd+6)%52]);      
     }    
-    for(int dd=0; dd <L_CHR2;  dd++){ //check juvenile strategy    
+    for(int dd=0; dd <L_CHR2;  dd++){ //check juvenile strategy
       ple[i].adultXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
       ple[i].adultYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
     }
@@ -80,8 +80,8 @@ int main (int argc, char* argv[]) {
   for(int i=0; i < POPMAX; i++){
     sol[i].sex    = (i%2)+1;
     sol[i].weight = BORNWGHT ;
-    sol[i].id     = id ; 
-    sol[i].stage  = 1 ;                                       
+    sol[i].id     = id ;
+    sol[i].stage  = 1 ;
     sol[i].age    = 52 ;
     sol[i].u_m    = U_M ;
     sol[i].u_f    = U_F;
@@ -94,12 +94,12 @@ int main (int argc, char* argv[]) {
         do{sol[i].juvXdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 left or right //
            sol[i].juvYdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 up or down    //
            resX = (int) (sol[i].juvXdir[dd] * sol[i].swim()) ;
-           resY = (int) (sol[i].juvYdir[dd] * sol[i].swim()) ;            
+           resY = (int) (sol[i].juvYdir[dd] * sol[i].swim()) ;
         } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) ||((X + resX) > X_MAX) ||((Y + resY )< 0) ||((Y + resY) > Y_MAX));
         X += resX;
         Y += resY;
         sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y],theGrowthGam[(dd+6)%52]);      
-    }   
+    }
     for(int dd=0; dd < L_CHR2 ;  dd++){                        //check juvenile strategy    
       sol[i].adultXdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 left or right //
       sol[i].adultYdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 up or down    //
@@ -109,7 +109,7 @@ int main (int argc, char* argv[]) {
   }                                                            // end for loop over individuals /
   cout << "Initialisation of Plaice and Sole done" << endl;
 
-  int aliveple = POPMAX, alivesol = POPMAX; 
+  int aliveple = POPMAX, alivesol = POPMAX;
 
   string ext(".csv");                                          //Open file to write output to disk 
   filename += ( argv[1] + ext) ;
@@ -118,39 +118,39 @@ int main (int argc, char* argv[]) {
   mypopulation.open(popname.c_str());
 
   /* START SIM */
-  for(int t = 6; t < T_MAX; t++){    
+  for(int t = 6; t < T_MAX; t++){
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;
-        
+
     for(int n = 0 ; n < aliveple ; n++) {
         if (ple[n].stage < 3 ) {
             Btotalple  += ple[n].weight ; 
             if (ple[n].stage < 2 ) Bnurseple += ple[n].weight;
-        }        
-    } 
+        }
+    }
      
     for(int n = 0 ; n < alivesol ; n++) {
         if (sol[n].stage < 3 ) {
             Btotalsol  += sol[n].weight ; 
             if (sol[n].stage < 2 ) Bnursesol += sol[n].weight;
-        }        
-    } 
+        }
+    }
     
     Bspawnple =  Btotalple - Bnurseple;
     Bspawnsol =  Btotalsol - Bnursesol;
 
     move(ple, aliveple, t%52, theTemp);                                                       // Move individuals every tenth timestep //
     move(sol, alivesol, t%52, theTemp);                                                       // Move individuals every tenth timestep //  
- 
+
     age        (ple, aliveple)    ;                                                           // Function of ageing //
     age        (sol, alivesol)    ;                                                           // Function of ageing //    
 
     mortality(ple, LAMBDAple, aliveple ,Bnurseple ) ;                                         // Function mortality //
     mortality(sol, LAMBDAsol, alivesol ,Bnursesol ) ;                                         // Function mortality */
-    
+
     growth     (ple, aliveple, Bnurseple, t % 52, theFood, theTemp, theGrowthGam) ;                        // Function of growth //   
-    growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp, theGrowthGam) ;                        // Function of growth //    
-   
+    growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp, theGrowthGam) ;                        // Function of growth //
+
     if(t%52 == 10 ) maturation (ple, aliveple)   ; //Checked with Cindy, gonads start to develop in March // Function of maturation //
     if(t%52 == 10 ) maturation (sol, alivesol)   ;                                           // Function of maturation //
     
@@ -183,7 +183,7 @@ int main (int argc, char* argv[]) {
                      << "," << (int) ple[nn].juvXdir[(int) (ple[nn].age)]                     << "," << (int) ple[nn].juvYdir[(int) (ple[nn].age)]  
                      << "," << (int) ple[nn].adultXdir[(t+1)%52]                              << "," << (int) ple[nn].adultYdir[(t+1)%52]           << endl;
         }
-      }   
+      }
     }
 
     //Write output every 15 years (cycle of complete new population)        
