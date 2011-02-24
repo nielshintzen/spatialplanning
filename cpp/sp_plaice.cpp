@@ -90,7 +90,7 @@ int main (int argc, char* argv[]) {
     int X         = sol[i].X;
     int Y         = sol[i].Y;
     int resX, resY;
-    for(int dd=0; dd < L_CHR1;  dd++){                         //check juvenile strategy    
+    for(int dd=0; dd < L_CHR1;  dd++){                         //check juvenile strategy
         do{sol[i].juvXdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 left or right //
            sol[i].juvYdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 up or down    //
            resX = (int) (sol[i].juvXdir[dd] * sol[i].swim()) ;
@@ -100,18 +100,18 @@ int main (int argc, char* argv[]) {
         Y += resY;
         sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y],theGrowthGam[(dd+6)%52]);      
     }
-    for(int dd=0; dd < L_CHR2 ;  dd++){                        //check juvenile strategy    
+    for(int dd=0; dd < L_CHR2 ;  dd++){                        //check juvenile strategy
       sol[i].adultXdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 left or right //
       sol[i].adultYdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 up or down    //
-    }   
-    sol[i].weight = BORNWGHT; 
+    }
+    sol[i].weight = BORNWGHT;
     id++;
   }                                                            // end for loop over individuals /
   cout << "Initialisation of Plaice and Sole done" << endl;
 
   int aliveple = POPMAX, alivesol = POPMAX;
 
-  string ext(".csv");                                          //Open file to write output to disk 
+  string ext(".csv");                                          //Open file to write output to disk
   filename += ( argv[1] + ext) ;
   popname += (argv[1] + ext);
   myfile.open (filename.c_str() );
@@ -124,18 +124,18 @@ int main (int argc, char* argv[]) {
 
     for(int n = 0 ; n < aliveple ; n++) {
         if (ple[n].stage < 3 ) {
-            Btotalple  += ple[n].weight ; 
+            Btotalple  += ple[n].weight ;
             if (ple[n].stage < 2 ) Bnurseple += ple[n].weight;
         }
     }
-     
+
     for(int n = 0 ; n < alivesol ; n++) {
         if (sol[n].stage < 3 ) {
             Btotalsol  += sol[n].weight ; 
             if (sol[n].stage < 2 ) Bnursesol += sol[n].weight;
         }
     }
-    
+
     Bspawnple =  Btotalple - Bnurseple;
     Bspawnsol =  Btotalsol - Bnursesol;
 
@@ -153,10 +153,10 @@ int main (int argc, char* argv[]) {
 
     if(t%52 == 10 ) maturation (ple, aliveple)   ; //Checked with Cindy, gonads start to develop in March // Function of maturation //
     if(t%52 == 10 ) maturation (sol, alivesol)   ;                                           // Function of maturation //
-    
+
     cout<<"i " <<argv[1] << " t " << t << " ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; //output(ple,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals // 
     //cout<<"i " <<argv[1] << " t " << t << " ssb sol " << Bspawnsol<<" num sol "<<alivesol<< endl; //output(sol,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals //
-  
+
     aliveple = alive2front (ple)  ;                                                           // shuffle so that alives are in front*/
     alivesol = alive2front (sol)  ;                                                           // shuffle so that alives are in front*/
 
@@ -192,8 +192,8 @@ int main (int argc, char* argv[]) {
   } //end of timeloop
 
   myfile.close() ; mypopulation.close();
-  return 0 ;  
-} 
+  return 0 ;
+}
 
 
 
