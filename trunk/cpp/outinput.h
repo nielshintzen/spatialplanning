@@ -20,9 +20,9 @@ double theGrowthGam[52];
   fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7d.dat", ios::in);
   fstream WeekPropFood ("/media/n/Projecten/SpatialPlanning/svnjjp/data/growthgam7d.dat", ios::in);                                                          
   ofstream mypopulation;
-  string popname       ("~/mypopulation_mut"); 
+  string popname       ("mypopulation_mut"); 
   ofstream myfile;
-  string filename      ("~/testoutputspat_mut");  
+  string filename      ("testoutputspat_mut");  
 #else 
   //OS = Windows
   fstream GridFood     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
