@@ -4,13 +4,13 @@
 #include <cmath>
 #include <cstdlib>
 
-#define POPMAX 20000        // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
-#define T_MAX  5000         // Maximum number of years that sim runs // 
-#define T_STEP 5            // Number of times output is written to disk
+#define POPMAX 5000000      // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
+#define T_MAX  100000       // Maximum number of years that sim runs // 
+#define T_STEP 10           // Number of times output is written to disk
 #define A_MAX  780          // Number of timesteps output will be written to disk
-#define P_WRITE 5000        // Maximum number of individuals written to disk
+#define P_WRITE 6000        // Maximum number of individuals written to disk
 
-#define R1ple      9.0E2    // stock recruitment parameters, This means that max 900 individuals are born (being 900 million individuals in field), matches up with weights//
+#define R1ple      4.5E5    // stock recruitment parameters, This means that max 900 individuals are born (being 900 million individuals in field), matches up with weights//
 #define R2ple      3.0E3    // stock recruitment parameters //
 #define R1sol      9.0E2    // stock recruitment parameters //
 #define R2sol      3.0E3    // stock recruitment parameters //
@@ -25,7 +25,7 @@ unsigned long int minid, maxid;
 #include "utils.h"          //Functions to get min, max etc
 
 struct ind ple[POPMAX];
-struct ind sol[POPMAX];
+//struct ind sol[POPMAX];
 
 int main (int argc, char* argv[]) {
 
@@ -77,36 +77,36 @@ int main (int argc, char* argv[]) {
     id++;
   }
 
-  for(int i=0; i < POPMAX; i++){
-    sol[i].sex    = (i%2)+1;
-    sol[i].weight = BORNWGHT ;
-    sol[i].id     = id ;
-    sol[i].stage  = 1 ;
-    sol[i].age    = 52 ;
-    sol[i].u_m    = U_M ;
-    sol[i].u_f    = U_F;
-    sol[i].X      = 75 ;
-    sol[i].Y      = 53 ;
-    int X         = sol[i].X;
-    int Y         = sol[i].Y;
-    int resX, resY;
-    for(int dd=0; dd < L_CHR1;  dd++){                         //check juvenile strategy
-        do{sol[i].juvXdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 left or right //
-           sol[i].juvYdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 up or down    //
-           resX = (int) (sol[i].juvXdir[dd] * sol[i].swim()) ;
-           resY = (int) (sol[i].juvYdir[dd] * sol[i].swim()) ;
-        } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) ||((X + resX) > X_MAX) ||((Y + resY )< 0) ||((Y + resY) > Y_MAX));
-        X += resX;
-        Y += resY;
-        sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y],theGrowthGam[(dd+6)%52]);      
-    }
-    for(int dd=0; dd < L_CHR2 ;  dd++){                        //check juvenile strategy
-      sol[i].adultXdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 left or right //
-      sol[i].adultYdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 up or down    //
-    }
-    sol[i].weight = BORNWGHT;
-    id++;
-  }                                                            // end for loop over individuals /
+//  for(int i=0; i < POPMAX; i++){
+//    sol[i].sex    = (i%2)+1;
+//    sol[i].weight = BORNWGHT ;
+//    sol[i].id     = id ;
+//    sol[i].stage  = 1 ;
+//    sol[i].age    = 52 ;
+//    sol[i].u_m    = U_M ;
+//    sol[i].u_f    = U_F;
+//    sol[i].X      = 75 ;
+//    sol[i].Y      = 53 ;
+//    int X         = sol[i].X;
+//    int Y         = sol[i].Y;
+//    int resX, resY;
+//    for(int dd=0; dd < L_CHR1;  dd++){                         //check juvenile strategy
+//        do{sol[i].juvXdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 left or right //
+//           sol[i].juvYdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 up or down    //
+//           resX = (int) (sol[i].juvXdir[dd] * sol[i].swim()) ;
+//           resY = (int) (sol[i].juvYdir[dd] * sol[i].swim()) ;
+//        } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) ||((X + resX) > X_MAX) ||((Y + resY )< 0) ||((Y + resY) > Y_MAX));
+//        X += resX;
+//        Y += resY;
+//        sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y],theGrowthGam[(dd+6)%52]);      
+//    }
+//    for(int dd=0; dd < L_CHR2 ;  dd++){                        //check juvenile strategy
+//      sol[i].adultXdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 left or right //
+//      sol[i].adultYdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 up or down    //
+//    }
+//    sol[i].weight = BORNWGHT;
+//    id++;
+//  }                                                            // end for loop over individuals /
   cout << "Initialisation of Plaice and Sole done" << endl;
 
   int aliveple = POPMAX, alivesol = POPMAX;
@@ -129,42 +129,42 @@ int main (int argc, char* argv[]) {
         }
     }
 
-    for(int n = 0 ; n < alivesol ; n++) {
-        if (sol[n].stage < 3 ) {
-            Btotalsol  += sol[n].weight ; 
-            if (sol[n].stage < 2 ) Bnursesol += sol[n].weight;
-        }
-    }
+//    for(int n = 0 ; n < alivesol ; n++) {
+//        if (sol[n].stage < 3 ) {
+//            Btotalsol  += sol[n].weight ; 
+//            if (sol[n].stage < 2 ) Bnursesol += sol[n].weight;
+//        }
+//    }
 
     Bspawnple =  Btotalple - Bnurseple;
-    Bspawnsol =  Btotalsol - Bnursesol;
+//    Bspawnsol =  Btotalsol - Bnursesol;
 
     move(ple, aliveple, t%52, theTemp);                                                       // Move individuals every tenth timestep //
-    move(sol, alivesol, t%52, theTemp);                                                       // Move individuals every tenth timestep //  
+//    move(sol, alivesol, t%52, theTemp);                                                       // Move individuals every tenth timestep //  
 
     age        (ple, aliveple)    ;                                                           // Function of ageing //
-    age        (sol, alivesol)    ;                                                           // Function of ageing //    
+//    age        (sol, alivesol)    ;                                                           // Function of ageing //    
 
     mortality(ple, LAMBDAple, aliveple ,Bnurseple ) ;                                         // Function mortality //
-    mortality(sol, LAMBDAsol, alivesol ,Bnursesol ) ;                                         // Function mortality */
+//    mortality(sol, LAMBDAsol, alivesol ,Bnursesol ) ;                                         // Function mortality */
 
     growth     (ple, aliveple, Bnurseple, t % 52, theFood, theTemp, theGrowthGam) ;                        // Function of growth //   
-    growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp, theGrowthGam) ;                        // Function of growth //
+//    growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp, theGrowthGam) ;                        // Function of growth //
 
     if(t%52 == 10 ) maturation (ple, aliveple)   ; //Checked with Cindy, gonads start to develop in March // Function of maturation //
-    if(t%52 == 10 ) maturation (sol, alivesol)   ;                                           // Function of maturation //
+//    if(t%52 == 10 ) maturation (sol, alivesol)   ;                                           // Function of maturation //
 
-    cout<<"i " <<argv[1] << " t " << t << " ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; //output(ple,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals // 
+//    cout<<"i " <<argv[1] << " t " << t << " ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; //output(ple,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals // 
     //cout<<"i " <<argv[1] << " t " << t << " ssb sol " << Bspawnsol<<" num sol "<<alivesol<< endl; //output(sol,t, 3);            // Write biomass and number to screen, followed by data for 10 indivuals //
 
     aliveple = alive2front (ple)  ;                                                           // shuffle so that alives are in front*/
-    alivesol = alive2front (sol)  ;                                                           // shuffle so that alives are in front*/
+//    alivesol = alive2front (sol)  ;                                                           // shuffle so that alives are in front*/
 
     if(t%52 == 5) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp); // Function of reproduction  in week 5*/
-    if(t%52 == 5) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction  in week 5*/
+//    if(t%52 == 5) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction  in week 5*/
 
     if(t%52 == 5){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
-    if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
+//    if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
 
     //Write output
     if ((t==6) ||( (t+A_MAX) % (int)(T_MAX/(T_STEP-1)) < 52 && t % 52 == 6)){
