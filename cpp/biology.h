@@ -148,8 +148,8 @@ void larvalmortality (struct ind x[], int Indvs, FTYPE larvmort  )  {
     if (x[n].age ==0)    {                                                 // only individuals of 0 days old suffer from larval mortality 
       psurv   = exp(-larvmort[5][x[n].X][x[n].Y]) ;                                       
       if(((double)rand()/((double)RAND_MAX+1)) > psurv){x[n].stage = 4 ; } // dead by natural causes  
-      x[n].X    = 75;                                                     // now that we know which larvae died because of wrong position, move to standard position // 
-      x[n].Y    = 53;
+      x[n].X    = 91;                                                     // now that we know which larvae died because of wrong position, move to standard position // 
+      x[n].Y    = 67;
       x[n].age  = 52;                                                     // they are born as 1 year olds, so set age at 52  
     }
   }
