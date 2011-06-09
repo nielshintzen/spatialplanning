@@ -4,11 +4,12 @@
 #include <cmath>
 #include <cstdlib>
 
-#define POPMAX 5000000      // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
-#define T_MAX  100000       // Maximum number of years that sim runs // 
+#define POPMAX 5000         // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
+#define T_MAX  1000         // Maximum number of years that sim runs // 
 #define T_STEP 10           // Number of times output is written to disk
 #define A_MAX  780          // Number of timesteps output will be written to disk
 #define P_WRITE 6000        // Maximum number of individuals written to disk
+#define SPAREA  2           // Spawning area: 1 = English Channel, 2 = Duitse bocht
 
 #define R1ple      4.5E5    // stock recruitment parameters, This means that max 900 individuals are born (being 900 million individuals in field), matches up with weights//
 #define R2ple      3.0E3    // stock recruitment parameters //
@@ -54,8 +55,13 @@ int main (int argc, char* argv[]) {
     ple[i].age    = 52 ;
     ple[i].u_m    = U_M ;
     ple[i].u_f    = U_F;
-    ple[i].X      = 91 ;
-    ple[i].Y      = 67 ;
+    if(SPAREA == 1){ 
+      ple[i].X      = 75 ;
+      ple[i].Y      = 53 ;
+    } else if(SPAREA == 2){
+        ple[i].X      = 91 ;
+        ple[i].Y      = 67 ;
+    }             
     int X         = ple[i].X;
     int Y         = ple[i].Y;
     int resX, resY;
@@ -85,8 +91,13 @@ int main (int argc, char* argv[]) {
 //    sol[i].age    = 52 ;
 //    sol[i].u_m    = U_M ;
 //    sol[i].u_f    = U_F;
-//    sol[i].X      = 91 ;
-//    sol[i].Y      = 67 ;
+//    if(SPAREA == 1){ 
+//      sol[i].X      = 75 ;
+//      sol[i].Y      = 53 ;
+//    } else if(SPAREA == 2){
+//        sol[i].X      = 91 ;
+//        sol[i].Y      = 67 ;
+//    } 
 //    int X         = sol[i].X;
 //    int Y         = sol[i].Y;
 //    int resX, resY;
@@ -112,8 +123,12 @@ int main (int argc, char* argv[]) {
   int aliveple = POPMAX, alivesol = POPMAX;
 
   string ext(".csv");                                          //Open file to write output to disk
-  filename += ( argv[1] + ext) ;
-  popname += (argv[1] + ext);
+  string SPname("_SPAREA");
+  char buffer [4];
+  string SP(itoa(SPAREA,buffer,10));
+  filename += ( argv[1] + SPname + SP + ext);
+  cout << filename << endl;
+  popname += (argv[1] + SPname + SP + ext);
   myfile.open (filename.c_str() );
   mypopulation.open(popname.c_str());
 
@@ -153,6 +168,9 @@ int main (int argc, char* argv[]) {
 
     if(t%52 == 10 ) maturation (ple, aliveple)   ; //Checked with Cindy, gonads start to develop in March // Function of maturation //
 //    if(t%52 == 10 ) maturation (sol, alivesol)   ;                                           // Function of maturation //
+
+    if(t%52 == 5) cout<<"i " << argv[1]  <<" t " << t << " ssb ple " << Bspawnple<<" num ple "<<aliveple<< endl; //output(ple,t, 3);            // Write biomass and number to screen, followed by data for 10$
+//    if(t%52 == 5) cout<<"i " << argv[1]  <<  " t " << t << " ssb sol " << Bspawnsol<<" num sol "<<alivesol<< endl; //output(sol,t, 3);            // Write biomass and number to screen, followed by data fo$
 
     aliveple = alive2front (ple)  ;                                                           // shuffle so that alives are in front*/
 //    alivesol = alive2front (sol)  ;                                                           // shuffle so that alives are in front*/
