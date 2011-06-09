@@ -42,6 +42,9 @@ int main (int argc, char* argv[]) {
 
   readgrid(&GridLMort , X_MAX, Y_MAX, 52, theLMort);
   cout << "Read Larval Mortality completed" << endl;
+  
+  if(SPAREA == 1){ cout << "Spawning area 1 must be 0 " << theLMort[5][64][47] << endl;}
+  if(SPAREA == 2){ cout << "Spawning area 2 must be 0 " << theLMort[5][76][70] << endl;}
 
   readgrowthgam(&WeekPropFood,52,theGrowthGam);
   cout << "Read growth gam completed" << endl;

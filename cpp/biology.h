@@ -122,14 +122,34 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
       } 
       //mutate movement strategies with mutation rate of 10%
       if((double)rand()/((double)RAND_MAX+1) < MUT_RATE){
-         int mpos = rand()% ((L_CHR1 + L_CHR2) + 1);
+         int mpos = rand()% (L_CHR1 + L_CHR2);
          if  (mpos < L_CHR1){
-         x[nu].juvXdir[mpos] = (char)((rand()% 11) -5); 
-         x[nu].juvYdir[mpos] = (char)((rand()% 11) -5); 
-        } else { 
-         x[nu].adultXdir[mpos-L_CHR1] = (char)((rand()% 11) -5); 
-         x[nu].adultYdir[mpos-L_CHR1] = (char)((rand()% 11) -5);
-        }
+           x[nu].juvXdir[mpos] = (char)((rand()% 11) -5); 
+           x[nu].juvYdir[mpos] = (char)((rand()% 11) -5); 
+         } else { 
+             if((double)rand()/((double)RAND_MAX+1) < MUT_RATE){
+               //Double, counter effect mutation
+               //restriction on step size (in first mutation, you can jump from -5 to 5,
+               //to counter that, you need a -10 step change in the second mutation, which is
+               //not always possible, therefore while loop
+               int mposc= rand()% (L_CHR2 - 1); //between 1 and 51
+               mposc = ((mpos-L_CHR1) + mposc) % 52; 
+               int resX, resY;
+               do{ resX = (rand()% 11) -5;
+                   resY = (rand()% 11) -5;
+               } while(abs((int) x[nu].adultXdir[mposc] + (-1 * (int) resX - (int) x[nu].adultXdir[mpos-L_CHR1])) < 6 
+                   &&  abs((int) x[nu].adultYdir[mposc] + (-1 * (int) resY - (int) x[nu].adultYdir[mpos-L_CHR1])) < 6);
+                
+               x[nu].adultXdir[mposc]= (char) ((int) x[nu].adultXdir[mposc] + (-1 * (int) resX - (int) x[nu].adultXdir[mpos-L_CHR1]));
+               x[nu].adultYdir[mposc]= (char) ((int) x[nu].adultYdir[mposc] + (-1 * (int) resY - (int) x[nu].adultYdir[mpos-L_CHR1]));
+               x[nu].adultXdir[mpos-L_CHR1] = (char) resX; 
+               x[nu].adultYdir[mpos-L_CHR1] = (char) resX;
+             } else {
+                //Normal single mutation
+                x[nu].adultXdir[mpos-L_CHR1] = (char) ((rand()% 11) -5); 
+                x[nu].adultYdir[mpos-L_CHR1] = (char) ((rand()% 11) -5);
+               }
+          }
       }
       x[nu].age    = 0;
       x[nu].stage  = 1;
