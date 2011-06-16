@@ -4,8 +4,8 @@
 #include <cmath>
 #include <cstdlib>
 
-#define POPMAX 5000         // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
-#define T_MAX  1000         // Maximum number of years that sim runs // 
+#define POPMAX 5000000      // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
+#define T_MAX  100000       // Maximum number of years that sim runs // 
 #define T_STEP 10           // Number of times output is written to disk
 #define A_MAX  780          // Number of timesteps output will be written to disk
 #define P_WRITE 6000        // Maximum number of individuals written to disk
@@ -125,13 +125,12 @@ int main (int argc, char* argv[]) {
 
   int aliveple = POPMAX, alivesol = POPMAX;
 
-  string ext(".csv");                                          //Open file to write output to disk
-  string SPname("_SPAREA");
-  char buffer [4];
-  string SP(itoa(SPAREA,buffer,10));
-  filename += ( argv[1] + SPname + SP + ext);
-  cout << filename << endl;
-  popname += (argv[1] + SPname + SP + ext);
+  string ext(".csv");                                            //Open file to write output to disk
+  string area("_area");
+  char spar[10];
+  sprintf(spar,"%d",SPAREA);
+  filename += ( argv[1]) ;  filename += ( area);  filename += ( spar);  filename += ( ext);
+  popname  += (argv[1]);    popname  += ( area);  popname  += ( spar);  popname  += ( ext);
   myfile.open (filename.c_str() );
   mypopulation.open(popname.c_str());
 
