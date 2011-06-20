@@ -86,7 +86,6 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
 }
 
 int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, FTYPE temp){
-
   int up_nu, rndAdult1, rndAdult2, inher;
  
   int N_r = (int) ( R1* SSB / (R2 + SSB )) ; /*NOTE SSB IS SCALED */
@@ -132,14 +131,13 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
                //restriction on step size (in first mutation, you can jump from -5 to 5,
                //to counter that, you need a -10 step change in the second mutation, which is
                //not always possible, therefore while loop
-               int mposc= rand()% (L_CHR2 - 1); //between 1 and 51
+               int mposc= rand()% (L_CHR2 - 1) + 1; //between 1 and 51
                mposc = ((mpos-L_CHR1) + mposc) % 52; 
                int resX, resY;
                do{ resX = (rand()% 11) -5;
                    resY = (rand()% 11) -5;
-               } while(abs((int) x[nu].adultXdir[mposc] + (-1 * (int) resX - (int) x[nu].adultXdir[mpos-L_CHR1])) < 6 
-                   &&  abs((int) x[nu].adultYdir[mposc] + (-1 * (int) resY - (int) x[nu].adultYdir[mpos-L_CHR1])) < 6);
-                
+               } while(abs((int) x[nu].adultXdir[mposc] + (-1 * (int) resX - (int) x[nu].adultXdir[mpos-L_CHR1])) > 5 
+                   ||  abs((int) x[nu].adultYdir[mposc] + (-1 * (int) resY - (int) x[nu].adultYdir[mpos-L_CHR1])) > 5);
                x[nu].adultXdir[mposc]= (char) ((int) x[nu].adultXdir[mposc] + (-1 * (int) resX - (int) x[nu].adultXdir[mpos-L_CHR1]));
                x[nu].adultYdir[mposc]= (char) ((int) x[nu].adultYdir[mposc] + (-1 * (int) resY - (int) x[nu].adultYdir[mpos-L_CHR1]));
                x[nu].adultXdir[mpos-L_CHR1] = (char) resX; 
