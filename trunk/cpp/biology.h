@@ -125,14 +125,13 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, F
          if  (mpos < L_CHR1){
            x[nu].juvXdir[mpos] = (char)((rand()% 11) -5); 
            x[nu].juvYdir[mpos] = (char)((rand()% 11) -5); 
-         } else { 
+         } else {                                                  // if mutation is in adult strategy, one can have single or double mutation      
              if((double)rand()/((double)RAND_MAX+1) < MUT_RATE){
                //Double, counter effect mutation
                //restriction on step size (in first mutation, you can jump from -5 to 5,
                //to counter that, you need a -10 step change in the second mutation, which is
                //not always possible, therefore while loop
-               int mposc= rand()% (L_CHR2 - 1) + 1; //between 1 and 51
-               mposc = ((mpos-L_CHR1) + mposc) % 52; 
+               int mposc = ((mpos-L_CHR1) + (rand()% (L_CHR2 - 1) + 1)) % 52; //the mpos-LCHR1 gives the positon on second chrom, because mpos is defined as position on firts and second chrom, the second part of the line gives a distance so taht we come up with second point
                int resX, resY;
                do{ resX = (rand()% 11) -5;
                    resY = (rand()% 11) -5;
