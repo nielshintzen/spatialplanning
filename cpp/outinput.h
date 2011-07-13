@@ -1,15 +1,18 @@
 #define X_MAX     144   // Max X dimension of Lorna map//
 #define Y_MAX     120   // Max X dimension of Lorna map//
+#define ERSEM       2  // number of available ERSEM runs
 #define PLUSGROUP  15
 
 using namespace std ;
-typedef float    (*FTYPE)[X_MAX][Y_MAX];
+typedef float    (*ETYPE)[X_MAX][Y_MAX][ERSEM];
+typedef float    (*FTYPE)[X_MAX][Y_MAX][ERSEM];
+
 
 //----------------------------------------------------------------------------//
 // Reading in- and output files // 
 //----------------------------------------------------------------------------//
-FTYPE theFood    = (FTYPE) malloc((size_t)sizeof(*theFood)  * 52);
-FTYPE theTemp    = (FTYPE) malloc((size_t)sizeof(*theTemp)  * 52);
+ETYPE theFood    = (ETYPE) malloc((size_t)sizeof(*theFood)  * 52);
+ETYPE theTemp    = (ETYPE) malloc((size_t)sizeof(*theTemp)  * 52);
 FTYPE theLMort   = (FTYPE) malloc((size_t)sizeof(*theLMort) * 52);
 double theGrowthGam[52];
 
@@ -75,6 +78,18 @@ void output(struct ind x[],int t, int number){
   }
 }
 
+void readgridyear (fstream * aFile, int anXmax, int anYmax, int anTmax, int anYRmax, ETYPE agrid){
+ for (int yr = 0; yr < anYRmax; yr++){
+   for (int tt = 0; tt < anTmax; tt++){
+  	 for (int yy = 0; yy < anYmax; yy++){
+	     for (int xx = 0; xx < anXmax; xx++){
+ 				  *aFile >> (agrid[tt][xx][yy][yr]); 
+       }
+     }
+	 }
+ }  		   
+}
+
 void readgrid (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid){
    for (int tt = 0; tt < anTmax; tt++){
   	 for (int yy = 0; yy < anYmax; yy++){
@@ -82,8 +97,9 @@ void readgrid (fstream * aFile, int anXmax, int anYmax, int anTmax, FTYPE agrid)
  				  *aFile >> (agrid[tt][xx][yy]); 
        }
      }
-	}		   
+	 }
 }
+
 
 void readgrowthgam (fstream * aFile, int weekMax,double agrowthgam[]){
      for(int tt = 0; tt < weekMax; tt++){
