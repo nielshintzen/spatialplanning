@@ -16,7 +16,7 @@ typedef float    (*FTYPE)[X_MAX][Y_MAX];
 // Define biological functions
 //----------------------------------------------------------------------------//
 void   move             (struct ind x[], int Indvs, int tofy, ETYPE temp) ; 
-void   growth           (struct ind x[], int Indvs, double B, int tofy, int envir  ETYPE food, ETYPE temp, double f1[]) ;
+void   growth           (struct ind x[], int Indvs, double B, int tofy, int envir,  ETYPE food, ETYPE temp, double f1[]) ;
 void   age              (struct ind x[], int Indvs)            ;
 void   maturation       (struct ind x[], int Indvs)           ;
 void   mortality        (struct ind x[], double lambda, int Indvs, double B );
