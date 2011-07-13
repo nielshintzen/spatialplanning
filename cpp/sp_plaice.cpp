@@ -45,8 +45,8 @@ int main (int argc, char* argv[]) {
   
   if(SPAREA == 1){ cout << "Spawning area 1 must be 0 " << theLMort[5][64][47] << endl;}
   if(SPAREA == 2){ cout << "Spawning area 2 must be 0 " << theLMort[5][76][70] << endl;}
-  cout << "Food at Food[week=6][x=65][y=48][ERSEM=1 (1989)] must be xxx " << theFood[5][64][47][0] << endl;
-  cout << "Temp at Temp[week=6][x=65][y=48][ERSEM=2 (2002)] must be xxx " << theTemp[5][64][47][1] << endl;
+  cout << "Food at Food[week=6][x=65][y=48][ERSEM=1 (1989)] must be 0.1410: " << theFood[5][64][47][0] << endl;
+  cout << "Temp at Temp[week=6][x=65][y=48][ERSEM=2 (2002)] must be 6.7739: " << theTemp[5][64][47][1] << endl;
 
   readgrowthgam(&WeekPropFood,52,theGrowthGam);
   cout << "Read growth gam completed" << endl;
@@ -75,10 +75,10 @@ int main (int argc, char* argv[]) {
            ple[i].juvYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
            resX = (int) (ple[i].juvXdir[dd] * ple[i].swim()) ;
            resY = (int) (ple[i].juvYdir[dd] * ple[i].swim()) ;
-        } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) || (( X + resX) > X_MAX) ||(( Y + resY) < 0) || ((Y + resY) > Y_MAX));
+        } while ((theTemp[1][X + resX][Y + resY ][0] < -15) ||(( X + resX) <0) || (( X + resX) > X_MAX) ||(( Y + resY) < 0) || ((Y + resY) > Y_MAX));
         X += resX;
         Y += resY;
-        ple[i].weight  = ple[i].weight  + ple[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y],theGrowthGam[(dd+6)%52]);      
+        ple[i].weight  = ple[i].weight  + ple[i].growth(theFood[(dd+6)%52][X][Y][0], theTemp[(dd+6)%52][X][Y][0],theGrowthGam[(dd+6)%52]);      
     }    
     for(int dd=0; dd <L_CHR2;  dd++){ //check juvenile strategy
       ple[i].adultXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
@@ -111,10 +111,10 @@ int main (int argc, char* argv[]) {
 //           sol[i].juvYdir[dd] = (char)( (rand()% 11) -5);      // Movement of maximum 5 up or down    //
 //           resX = (int) (sol[i].juvXdir[dd] * sol[i].swim()) ;
 //           resY = (int) (sol[i].juvYdir[dd] * sol[i].swim()) ;
-//        } while ((theTemp[1][X + resX][Y + resY ] < -15) ||(( X + resX) <0) ||((X + resX) > X_MAX) ||((Y + resY )< 0) ||((Y + resY) > Y_MAX));
+//        } while ((theTemp[1][X + resX][Y + resY ][0] < -15) ||(( X + resX) <0) ||((X + resX) > X_MAX) ||((Y + resY )< 0) ||((Y + resY) > Y_MAX));
 //        X += resX;
 //        Y += resY;
-//        sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y], theTemp[(dd+6)%52][X][Y],theGrowthGam[(dd+6)%52]);      
+//        sol[i].weight  = sol[i].weight  + sol[i].growth(theFood[(dd+6)%52][X][Y][0], theTemp[(dd+6)%52][X][Y][0],theGrowthGam[(dd+6)%52]);      
 //    }
 //    for(int dd=0; dd < L_CHR2 ;  dd++){                        //check juvenile strategy
 //      sol[i].adultXdir[dd] = (char)((rand()% 11) -5);          // Movement of maximum 5 left or right //
@@ -140,10 +140,12 @@ int main (int argc, char* argv[]) {
   myfile.open (filename.c_str() );
   mypopulation.open(popname.c_str());
 
+  int theEnvir = 0;
+  
   /* START SIM */
   for(int t = 6; t < T_MAX; t++){
    /* what ERSEM year is it? draw between 0 and  < ERSEM (if 2 ERSEM years then 0 or 1 ) */
-   if(t%52 == 0) int theEnvir = rand()% ERSEM; 
+   if(t%52 == 0) theEnvir = (int) rand()% ERSEM; 
     
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;

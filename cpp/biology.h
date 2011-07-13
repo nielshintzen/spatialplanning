@@ -10,7 +10,6 @@
 #define PLUSGROUP  15       // age of plusgroup
 
 using namespace std ;
-typedef float    (*FTYPE)[X_MAX][Y_MAX];
 
 //----------------------------------------------------------------------------//
 // Define biological functions
@@ -44,7 +43,7 @@ void move (struct ind x[], int Indvs, int tofy, ETYPE temp){
   }                                                           // end for loop over individuals //
 }  
 
-void growth (struct ind x[], int Indvs, double B, int tofy, int envir, FTYPE food, ETYPE temp, double f1[]){
+void growth (struct ind x[], int Indvs, double B, int tofy, int envir, ETYPE food, ETYPE temp, double f1[]){
   for(int n = 0 ; n < Indvs ; n++){	  
      x[n].weight  = x[n].weight + x[n].growth(food[tofy][x[n].X][x[n].Y][envir], temp[tofy][x[n].X][x[n].Y][envir],f1[tofy]);
    }                
