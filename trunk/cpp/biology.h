@@ -15,13 +15,13 @@ typedef float    (*FTYPE)[X_MAX][Y_MAX];
 //----------------------------------------------------------------------------//
 // Define biological functions
 //----------------------------------------------------------------------------//
-void   move             (struct ind x[], int Indvs, int tofy, FTYPE temp) ; 
-void   growth           (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp, double f1[]) ;
+void   move             (struct ind x[], int Indvs, int tofy, ETYPE temp) ; 
+void   growth           (struct ind x[], int Indvs, double B, int tofy, ETYPE food, ETYPE temp, double f1[]) ;
 void   age              (struct ind x[], int Indvs)            ;
 void   maturation       (struct ind x[], int Indvs)           ;
 void   mortality        (struct ind x[], double lambda, int Indvs, double B );
 int    alive2front      (struct ind x[])                       ;
-int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn, FTYPE temp);
+int    reproduction     (struct ind x[], double R1, double R2, int Indvs, double Bspawn);
 void   larvalmortality  (struct ind x[], int Indvs, FTYPE larvmort);
 double rand_sex         ();
 
@@ -29,7 +29,7 @@ void age (struct ind x[], int Indvs){
   for(int n = 0 ; n < Indvs ; n++) {x[n].age += 1 ; }       
 }     
 
-void move (struct ind x[], int Indvs, int tofy, FTYPE temp){ 
+void move (struct ind x[], int Indvs, int tofy, ETYPE temp){ 
   int Xtemp, Ytemp;
   for(int nn = 0 ; nn < Indvs ; nn++){
     if (x[nn].stage < 2){             
@@ -39,14 +39,14 @@ void move (struct ind x[], int Indvs, int tofy, FTYPE temp){
       Xtemp = (int) x[nn].adultXdir[(int) (tofy)];
       Ytemp = (int) x[nn].adultYdir[(int) (tofy)];
     }
-    x[nn].X += ((temp[tofy][x[nn].X + Xtemp][x[nn].Y + Ytemp ] < -15 )||((x[nn].X + Xtemp) < 0 )||((x[nn].X + Xtemp) > X_MAX )) ? 0 : Xtemp ; 
-    x[nn].Y += ((temp[tofy][x[nn].X        ][x[nn].Y + Ytemp ] < -15 )||((x[nn].Y + Ytemp) < 0 )||((x[nn].Y + Ytemp) > Y_MAX )) ? 0 : Ytemp ;                   
+    x[nn].X += ((temp[tofy][x[nn].X + Xtemp][x[nn].Y + Ytemp ][1] < -15 )||((x[nn].X + Xtemp) < 0 )||((x[nn].X + Xtemp) > X_MAX )) ? 0 : Xtemp ; 
+    x[nn].Y += ((temp[tofy][x[nn].X        ][x[nn].Y + Ytemp ][1] < -15 )||((x[nn].Y + Ytemp) < 0 )||((x[nn].Y + Ytemp) > Y_MAX )) ? 0 : Ytemp ;                   
   }                                                           // end for loop over individuals //
 }  
 
-void growth (struct ind x[], int Indvs, double B, int tofy, FTYPE food, FTYPE temp, double f1[]){
+void growth (struct ind x[], int Indvs, double B, int tofy, int envir, FTYPE food, ETYPE temp, double f1[]){
   for(int n = 0 ; n < Indvs ; n++){	  
-     x[n].weight  = x[n].weight + x[n].growth(food[tofy][x[n].X][x[n].Y], temp[tofy][x[n].X][x[n].Y],f1[tofy]);
+     x[n].weight  = x[n].weight + x[n].growth(food[tofy][x[n].X][x[n].Y][envir], temp[tofy][x[n].X][x[n].Y][envir],f1[tofy]);
    }                
 }      
     
@@ -85,7 +85,7 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
   }
 }
 
-int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB, FTYPE temp){
+int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB){
   int up_nu, rndAdult1, rndAdult2, inher;
  
   int N_r = (int) ( R1* SSB / (R2 + SSB )) ; /*NOTE SSB IS SCALED */

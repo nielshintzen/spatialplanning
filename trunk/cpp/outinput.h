@@ -5,7 +5,7 @@
 
 using namespace std ;
 typedef float    (*ETYPE)[X_MAX][Y_MAX][ERSEM];
-typedef float    (*FTYPE)[X_MAX][Y_MAX][ERSEM];
+typedef float    (*FTYPE)[X_MAX][Y_MAX];
 
 
 //----------------------------------------------------------------------------//
