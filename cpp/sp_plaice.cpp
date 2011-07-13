@@ -143,7 +143,7 @@ int main (int argc, char* argv[]) {
   /* START SIM */
   for(int t = 6; t < T_MAX; t++){
    /* what ERSEM year is it? draw between 0 and  < ERSEM (if 2 ERSEM years then 0 or 1 ) */
-   if(t%52 == 0) theEnvir = rand()% ERSEM; 
+   if(t%52 == 0) int theEnvir = rand()% ERSEM; 
     
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;
