@@ -33,11 +33,11 @@ int main (int argc, char* argv[]) {
   srand(atoi(argv[1])); //Take argument to write special extension to file
   double Btotalple, Bnurseple, Bspawnple, Btotalsol, Bnursesol, Bspawnsol ;    /* biomass on nursery, total biomass */
 
-  //Read in the data
-  readgrid(&GridFood , X_MAX, Y_MAX, 52, theFood);
+  //Read in the data, args are xmax, ymax, no weeks, number of ersem realisations */
+  readgridyear(&GridFood , X_MAX, Y_MAX, 52, ERSEM, theFood);
   cout << "Read Food completed" << endl;
 
-  readgrid(&GridTemp , X_MAX, Y_MAX, 52, theTemp);
+  readgridyear(&GridTemp , X_MAX, Y_MAX, 52, ERSEM, theTemp);
   cout << "Read Temp completed" << endl;
 
   readgrid(&GridLMort , X_MAX, Y_MAX, 52, theLMort);
@@ -45,6 +45,8 @@ int main (int argc, char* argv[]) {
   
   if(SPAREA == 1){ cout << "Spawning area 1 must be 0 " << theLMort[5][64][47] << endl;}
   if(SPAREA == 2){ cout << "Spawning area 2 must be 0 " << theLMort[5][76][70] << endl;}
+  cout << "Food at Food[week=6][x=65][y=48][ERSEM=1 (1989)] must be xxx " << theFood[5][64][47][0] << endl;
+  cout << "Temp at Temp[week=6][x=65][y=48][ERSEM=2 (2002)] must be xxx " << theTemp[5][64][47][1] << endl;
 
   readgrowthgam(&WeekPropFood,52,theGrowthGam);
   cout << "Read growth gam completed" << endl;
@@ -140,6 +142,9 @@ int main (int argc, char* argv[]) {
 
   /* START SIM */
   for(int t = 6; t < T_MAX; t++){
+   /* what ERSEM year is it? draw between 0 and  < ERSEM (if 2 ERSEM years then 0 or 1 ) */
+   if(t%52 == 0) theEnvir = rand()% ERSEM; 
+    
    /* CALCULATE TOTAL BIOMASS AND BIOMASS ON NURSERY FOR TWO SPECIES */
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;
 
@@ -169,8 +174,8 @@ int main (int argc, char* argv[]) {
     mortality(ple, LAMBDAple, aliveple ,Bnurseple ) ;                                         // Function mortality //
 //    mortality(sol, LAMBDAsol, alivesol ,Bnursesol ) ;                                         // Function mortality */
 
-    growth     (ple, aliveple, Bnurseple, t % 52, theFood, theTemp, theGrowthGam) ;                        // Function of growth //   
-//    growth     (sol, alivesol, Bnursesol, t % 52, theFood, theTemp, theGrowthGam) ;                        // Function of growth //
+    growth     (ple, aliveple, Bnurseple, t % 52, theEnvir, theFood, theTemp, theGrowthGam) ;                        // Function of growth //   
+//    growth     (sol, alivesol, Bnursesol, t % 52, theEnvir, theFood, theTemp, theGrowthGam) ;                        // Function of growth //
 
     if(t%52 == 10 ) maturation (ple, aliveple)   ; //Checked with Cindy, gonads start to develop in March // Function of maturation //
 //    if(t%52 == 10 ) maturation (sol, alivesol)   ;                                           // Function of maturation //
@@ -181,8 +186,8 @@ int main (int argc, char* argv[]) {
     aliveple = alive2front (ple)  ;                                                           // shuffle so that alives are in front*/
 //    alivesol = alive2front (sol)  ;                                                           // shuffle so that alives are in front*/
 
-    if(t%52 == 5) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple, theTemp); // Function of reproduction  in week 5*/
-//    if(t%52 == 5) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol, theTemp); // Function of reproduction  in week 5*/
+    if(t%52 == 5) aliveple = reproduction(ple, R1ple, R2ple, aliveple, Bspawnple); // Function of reproduction  in week 5*/
+//    if(t%52 == 5) alivesol = reproduction(sol, R1sol, R2sol, alivesol, Bspawnsol); // Function of reproduction  in week 5*/
 
     if(t%52 == 5){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
 //    if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
