@@ -18,7 +18,7 @@ double theGrowthGam[52];
   fstream GridFood     ("/media/n/Projecten/SpatialPlanning/svnjjp/data/food7d.dat", ios::in);
   fstream GridTemp     ("/media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
   #if SPAREA == 1
-    fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7d.dat", ios::in);
+    fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7darea.dat", ios::in);
   #elif SPAREA == 2 
     fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7darea2.dat", ios::in);
   #endif
@@ -32,7 +32,7 @@ double theGrowthGam[52];
   fstream GridFood     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
   fstream GridTemp     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
   #if SPAREA == 1
-    fstream GridLMort    ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7d.dat", ios::in);
+    fstream GridLMort    ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7darea1.dat", ios::in);
   #elif SPAREA == 2
     fstream GridLMort    ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7darea2.dat", ios::in); 
   #endif
