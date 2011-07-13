@@ -39,8 +39,8 @@ void move (struct ind x[], int Indvs, int tofy, FTYPE temp){
       Xtemp = (int) x[nn].adultXdir[(int) (tofy)];
       Ytemp = (int) x[nn].adultYdir[(int) (tofy)];
     }
-    x[nn].X += ((temp[tofy][x[nn].X + Xtemp][x[nn].Y + Ytemp ] < -15 )||(x[nn].X + Xtemp < 0 )||(x[nn].X + Xtemp > X_MAX )) ? 0 : Xtemp ; 
-    x[nn].Y += ((temp[tofy][x[nn].X + Xtemp][x[nn].Y + Ytemp ] < -15 )||(x[nn].Y + Ytemp < 0 )||(x[nn].Y + Ytemp > Y_MAX )) ? 0 : Ytemp ;                   
+    x[nn].X += ((temp[tofy][x[nn].X + Xtemp][x[nn].Y + Ytemp ] < -15 )||((x[nn].X + Xtemp) < 0 )||((x[nn].X + Xtemp) > X_MAX )) ? 0 : Xtemp ; 
+    x[nn].Y += ((temp[tofy][x[nn].X        ][x[nn].Y + Ytemp ] < -15 )||((x[nn].Y + Ytemp) < 0 )||((x[nn].Y + Ytemp) > Y_MAX )) ? 0 : Ytemp ;                   
   }                                                           // end for loop over individuals //
 }  
 
