@@ -29,12 +29,13 @@ void age (struct ind x[], int Indvs){
 }     
 
 void move (struct ind x[], int Indvs, int tofy, ETYPE temp){ 
-  int Xtemp, Ytemp;
   for(int nn = 0 ; nn < Indvs ; nn++){
-    if (x[nn].stage < 2){             
+    int Xtemp=0, Ytemp=0;
+    if ((x[nn].stage < 2) & (movjuv>0)){             
       Xtemp = (int) (x[nn].juvXdir[(int) (x[nn].age)] * x[nn].swim()) ;
       Ytemp = (int) (x[nn].juvYdir[(int) (x[nn].age)] * x[nn].swim()) ;
-    } else {
+    }
+    if((x[nn].stage == 2) & (movad>0)){
       Xtemp = (int) x[nn].adultXdir[(int) (tofy)];
       Ytemp = (int) x[nn].adultYdir[(int) (tofy)];
     }
