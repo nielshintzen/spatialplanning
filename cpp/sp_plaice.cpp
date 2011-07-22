@@ -10,6 +10,8 @@
 #define A_MAX  780          // Number of timesteps output will be written to disk
 #define P_WRITE 6000        // Maximum number of individuals written to disk
 #define SPAREA  2           // Spawning area: 1 = English Channel, 2 = Duitse bocht
+#define movjuv  1           // Juveniles to move: 0 = no, 1 = yes
+#define movad   0           // Adults to move: 0 = no, 1 = yes 
 
 #define R1ple      4.5E5    // stock recruitment parameters, This means that max 900 individuals are born (being 900 million individuals in field), matches up with weights//
 #define R2ple      3.0E3    // stock recruitment parameters //
