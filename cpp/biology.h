@@ -6,7 +6,7 @@
 #define LAMBDAsol  2.200    // mesh size selection factor //
 #define S_mesh     7.000    // mesh size //
 
-#define BORNWGHT   30       // ton for 1 000 000 individuals, because for one individual it is in gram // //Individuals get born at age 1//
+#define BORNWGHT   17.5     // ton for 1 000 000 individuals, because for one individual it is in gram // //Individuals get born at age 1//
 #define PLUSGROUP  15       // age of plusgroup
 
 using namespace std ;
@@ -31,11 +31,11 @@ void age (struct ind x[], int Indvs){
 void move (struct ind x[], int Indvs, int tofy, ETYPE temp){ 
   for(int nn = 0 ; nn < Indvs ; nn++){
     int Xtemp=0, Ytemp=0;
-    if ((x[nn].stage < 2) & (MOVJUV>0)){             
+    if ((x[nn].stage < 3) & (MOVJUV>0)){             
       Xtemp = (int) (x[nn].juvXdir[(int) (x[nn].age)] * x[nn].swim()) ;
       Ytemp = (int) (x[nn].juvYdir[(int) (x[nn].age)] * x[nn].swim()) ;
     }
-    if((x[nn].stage == 2) & (MOVAD>0)){
+    if((x[nn].stage == 3) & (MOVAD>0)){
       Xtemp = (int) x[nn].adultXdir[(int) (tofy)];
       Ytemp = (int) x[nn].adultYdir[(int) (tofy)];
     }
@@ -65,8 +65,8 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
   double m_p, F, M_tot, F_tot, psurv ;
   
   for(int n = 0 ; n < Indvs ; n++)  {
-    if (x[n].stage <3)    {
-      if ( x[n].age > A_MAX){x[n].stage = 4 ;                       // Animals older than 15 yrs die (necessary becaus they dont have movement strategy anymore 
+    if (x[n].stage <4)    {
+      if ( x[n].age > A_MAX){x[n].stage = 5 ;                       // Animals older than 15 yrs die (necessary becaus they dont have movement strategy anymore 
       } else{
              
         m_p     = (pow(x[n].weight , ETA)/52) ;                   // predation mortality due to foraging   
@@ -77,8 +77,8 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
         psurv   = exp(-(M_tot + F_tot)) ;                                       
         if(((double)rand()/((double)RAND_MAX+1)) > psurv ) 
         {
-          if(((double)rand()/((double)RAND_MAX+1)) >  M_tot / (M_tot + F_tot)){x[n].stage = 3 ; } // dead by fishery
-          else                                                                {x[n].stage = 4 ; } // dead by natural causes  
+          if(((double)rand()/((double)RAND_MAX+1)) >  M_tot / (M_tot + F_tot)){x[n].stage = 4 ; } // dead by fishery
+          else                                                                {x[n].stage = 5 ; } // dead by natural causes  
         }  
       }  
     }
@@ -97,13 +97,13 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB){
         x[nu].sex  = 1;
         do{ rndAdult1 = (int) rand() % Indvs;
             rndAdult2 = (int) rand() % Indvs;  
-        } while ( (int) x[rndAdult1].sex !=1 || (int) x[rndAdult2].sex != 1);
+        } while ( (int) x[rndAdult1].sex !=1 || (int) x[rndAdult2].sex != 1 || x[rndAdult1].stage == 1 || x[rndAdult2].stage == 1);
         if(x[rndAdult1].weight >= x[rndAdult2].weight){inher = rndAdult1; } else {inher = rndAdult2;} 
       } else{ //Females//
         x[nu].sex  = 2;
         do{ rndAdult1 = (int) rand() % Indvs;
             rndAdult2 = (int) rand() % Indvs;  
-        } while ((int) x[rndAdult1].sex !=2 || (int) x[rndAdult2].sex != 2);
+        } while ( (int) x[rndAdult1].sex !=2 || (int) x[rndAdult2].sex != 2 || x[rndAdult1].stage == 1 || x[rndAdult2].stage == 1);
         if(x[rndAdult1].weight >= x[rndAdult2].weight){inher = rndAdult1; } else {inher = rndAdult2;} 
       }  // end males or females
       x[nu].id   = id;
@@ -154,7 +154,12 @@ int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB){
       
       id++;
     }                     // end creating individual   
-  }    
+    
+  }
+  //All individuals that are mature become adult
+  for(int nn = 0; nn < Indvs  ; nn++){
+    if(x[nn].stage == 2){ x[nn].stage = 3;}
+  }   
   return (up_nu) ;
 }
 
@@ -164,7 +169,7 @@ void larvalmortality (struct ind x[], int Indvs, FTYPE larvmort  )  {
   for(int n = 0 ; n < Indvs ; n++)  {
     if (x[n].age ==0)    {                                                 // only individuals of 0 days old suffer from larval mortality 
       psurv   = exp(-larvmort[5][x[n].X][x[n].Y]) ;                                       
-      if(((double)rand()/((double)RAND_MAX+1)) > psurv){x[n].stage = 4 ; } // dead by natural causes  
+      if(((double)rand()/((double)RAND_MAX+1)) > psurv){x[n].stage = 5 ; } // dead by natural causes  
       if(SPAREA == 1){
         x[n].X    = 75;                                                     // now that we know which larvae died because of wrong position, move to standard position // 
         x[n].Y    = 53;
@@ -182,7 +187,7 @@ int alive2front(struct ind x[])
   int alv = 0 ;                                                              /* bring alive ind to front so recruits can go to 
                                                                                 back to have status 1 and 2 at beginning */
   for(int n = 0 ; n < POPMAX ; n++) {
-    if(x[n].stage <3) {
+    if(x[n].stage <4) {
       x[alv].id     = x[n].id    ;
       x[alv].sex    = x[n].sex    ;
       x[alv].stage  = x[n].stage  ;
@@ -203,7 +208,7 @@ int alive2front(struct ind x[])
       alv++ ;
     }
   }
-  for(int n = alv ; n < POPMAX ; n++) x[n].stage  = 4 ;                    // the rest is unimportant so give stage 4 
+  for(int n = alv ; n < POPMAX ; n++) x[n].stage  = 5 ;                    // the rest is unimportant so give stage 4 
   return (alv);
 }
 

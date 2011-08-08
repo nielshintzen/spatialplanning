@@ -2,7 +2,6 @@
 // Define class of individual & function for class ind // 
 //----------------------------------------------------------------------------//
 
-
 #define L_CHR1       157    // length of 1st chromosome (with juvenile strategy)     // 
 #define L_CHR2        52    // length of 2nd chromosome (with adult seasonal strategy) //
 
@@ -42,7 +41,7 @@ class ind
        unsigned long int id ;       // age in days        
        int    age ;       // age in days
        char   sex ;       // 1= male, 2=female //
-       char   stage ;     // stage1= immature, stage 2= mature, stage 3&4 : dead, stage3 = fishing, stage4 = natural//
+       char   stage ;     // stage1= immature, stage 2= mature but never spawned, stage 3=mature and spawned, stage 4&5 : dead, stage4 = fishing, stage5 = natural//
        double weight ;
        double u_m ;       // intercept PMRN by sex  (males)  //
        double u_f ;       // intercept PMRN by sex  (females //  
@@ -65,6 +64,7 @@ double ind::u()
    if (sex == 1) {return u_m ; }
    else          {return u_f ; }
 }
+
 
 double ind::length()
 { 
