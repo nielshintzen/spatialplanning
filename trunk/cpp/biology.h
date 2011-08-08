@@ -86,7 +86,8 @@ void mortality (struct ind x[], double LAMBDA, int Indvs, double B )  {
 }
 
 int reproduction (struct ind x[], double R1, double R2, int Indvs, double SSB){
-  int up_nu, rndAdult1, rndAdult2, inher;
+  int up_nu = Indvs; //predefine this variable because SSB might be 0 and return must have value
+  int rndAdult1, rndAdult2, inher;
  
   int N_r = (int) ( R1* SSB / (R2 + SSB )) ; /*NOTE SSB IS SCALED */
   if (N_r > 0 ){ 
