@@ -65,7 +65,7 @@ void writePopStruct (ofstream &mypop, struct ind x[], int Indvs, int time){
       cohort[age]++;
       weight[age] += x[n].weight;
       if(x[n].sex == 1){ sex[age]++;}
-      if(x[n].stage == 1){stage[age]++;}
+      if(x[n].stage < 3){stage[age]++;}
     } 
     for(int nn = 0; nn < PLUSGROUP; nn++){
       mypop << time << "," << cohort[nn] << "," << weight[nn] << "," << sex[nn] << "," << stage[nn] << endl;

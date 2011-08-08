@@ -4,11 +4,12 @@
 #include <cmath>
 #include <cstdlib>
 
-#define POPMAX 50000      // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
-#define T_MAX  10000       // Maximum number of years that sim runs // 
+#define POPMAX 5000      // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
+#define T_MAX  1000       // Maximum number of years that sim runs // 
 #define T_STEP 10           // Number of times output is written to disk
 #define A_MAX  780          // Number of timesteps output will be written to disk
-#define P_WRITE 6000        // Maximum number of individuals written to disk
+#define P_WRITE 600        // Maximum number of individuals written to disk
+#define C_WRITE 20          // Maximum number of cohorts written to disk
 #define SPAREA  2           // Spawning area: 1 = English Channel, 2 = Duitse bocht
 #define MOVJUV  1           // Juveniles to move: 0 = no, 1 = yes
 #define MOVAD   0           // Adults to move: 0 = no, 1 = yes 
@@ -20,7 +21,8 @@
 #define MUT_RATE   0.050    // mutation rate //
 
 unsigned long int id=0;
-unsigned long int minid, maxid;
+unsigned long int minid[C_WRITE];
+unsigned long int maxid[C_WRITE]; //number of cohorts, start and end value
 
 #include "class.h"          //Defines the class of the individual
 #include "outinput.h"       //Functions to deal with input and output
@@ -153,9 +155,9 @@ int main (int argc, char* argv[]) {
     Bnurseple = Btotalple = Bspawnple = Bnursesol = Btotalsol = Bspawnsol = 0;
 
     for(int n = 0 ; n < aliveple ; n++) {
-        if (ple[n].stage < 3 ) {
+        if (ple[n].stage < 4 ) {
             Btotalple  += ple[n].weight ;
-            if (ple[n].stage < 2 ) Bnurseple += ple[n].weight;
+            if (ple[n].stage < 3 ) Bnurseple += ple[n].weight;
         }
     }
 
@@ -197,23 +199,26 @@ int main (int argc, char* argv[]) {
 //    if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
 
     //Write output
-    if ((t==6) ||( (t+A_MAX) % (int)(T_MAX/(T_STEP-1)) < 52 && t % 52 == 6)){
+    for(int iC = 0; iC < C_WRITE; iC++){
+      if ((t==6) ||( (t+A_MAX) % (int)(T_MAX/(T_STEP-1)+(iC*52)) < 52 && t % 52 == 6)){
         int nn  = aliveple;
         int age = ple[nn].age;
         do{ age = ple[nn].age;
-          nn--;
+        nn--;
         } while ((nn > (aliveple - P_WRITE)) && (age <= 53));
-        minid = ple[nn + 1].id;
-        maxid = ple[aliveple - 1].id;
-    } else if ((t < 6 + A_MAX) ||( (t + A_MAX)% (int)(T_MAX/(T_STEP-1)) < A_MAX +52)){
-      for(int nn = 0; nn < aliveple; nn++){
-        if(ple[nn].stage < 3 && (ple[nn].id > minid & ple[nn].id < maxid)){
-          myfile <<t << "," <<       ple[nn].id          << "," << (int) ple[nn].sex          << "," <<       ple[nn].age                           << "," << (int) ple[nn].stage 
-                     << "," <<       ple[nn].X           << "," <<       ple[nn].Y            << "," <<       ple[nn].weight       
-                     << "," << (int) ple[nn].juvXdir[(int) (ple[nn].age)]                     << "," << (int) ple[nn].juvYdir[(int) (ple[nn].age)]  
-                     << "," << (int) ple[nn].adultXdir[(t+1)%52]                              << "," << (int) ple[nn].adultYdir[(t+1)%52]           << endl;
+            minid[iC] = ple[nn + 1].id;
+            maxid[iC] = ple[aliveple - 1].id;
+      } else if ((t < 6 + A_MAX) ||( (t + A_MAX)% (int)(T_MAX/(T_STEP-1)+(iC*52)) < A_MAX +52)){
+          for(int nn = 0; nn < aliveple; nn++){
+            if(ple[nn].stage < 4 && (ple[nn].id > minid[iC] & ple[nn].id < maxid[iC])){
+              myfile <<t << "," <<       ple[nn].id          << "," << (int) ple[nn].sex          << "," <<       ple[nn].age                           << "," << (int) ple[nn].stage 
+                         << "," <<       ple[nn].X           << "," <<       ple[nn].Y            << "," <<       ple[nn].weight       
+                         << "," << (int) ple[nn].juvXdir[(int) (ple[nn].age)]                     << "," << (int) ple[nn].juvYdir[(int) (ple[nn].age)]  
+                         << "," << (int) ple[nn].adultXdir[(t+1)%52]                              << "," << (int) ple[nn].adultYdir[(t+1)%52]           
+                         << "," <<       theFood[(t+1)%52][(int) ple[nn].X][(int) ple[nn].Y][(int) theEnvir]      << "," <<  theTemp[(t+1)%52][(int) ple[nn].X][(int) ple[nn].Y][(int) theEnvir] << endl;
+            }
+          }
         }
-      }
     }
 
     //Write output every 15 years (cycle of complete new population)        
