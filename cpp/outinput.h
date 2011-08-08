@@ -18,28 +18,28 @@ double theGrowthGam[52];
 
 #ifdef __linux__
   //OS = Linux
-  fstream GridFood     ("/media/n/Projecten/SpatialPlanning/svnjjp/data/food7d.dat", ios::in);
-  fstream GridTemp     ("/media/n/Projecten/SpatialPlanning/svnjjp/data/temp7d.dat", ios::in);
+  fstream GridFood     ("/media/n/Projecten/SpatialPlanning/svnnth/data/food7d.dat", ios::in);
+  fstream GridTemp     ("/media/n/Projecten/SpatialPlanning/svnnth/data/temp7d.dat", ios::in);
   #if SPAREA == 1
-    fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7darea1.dat", ios::in);
+    fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnnth/data/larvalmortality7darea1.dat", ios::in);
   #elif SPAREA == 2 
-    fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnjjp/data/larvalmortality7darea2.dat", ios::in);
+    fstream GridLMort    ("/media/n/Projecten/SpatialPlanning/svnnth/data/larvalmortality7darea2.dat", ios::in);
   #endif
-  fstream WeekPropFood ("/media/n/Projecten/SpatialPlanning/svnjjp/data/growthgam7d.dat", ios::in);                                                          
+  fstream WeekPropFood ("/media/n/Projecten/SpatialPlanning/svnnth/data/growthgam7d.dat", ios::in);                                                          
   ofstream mypopulation;
   string popname       ("mypopulation_mut"); 
   ofstream myfile;
   string filename      ("testoutputspat_mut");  
 #else 
   //OS = Windows
-  fstream GridFood     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\food7d.dat", ios::in);
-  fstream GridTemp     ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\temp7d.dat", ios::in);
+  fstream GridFood     ("N:\\Projecten\\SpatialPlanning\\svnnth\\data\\food7d.dat", ios::in);
+  fstream GridTemp     ("N:\\Projecten\\SpatialPlanning\\svnnth\\data\\temp7d.dat", ios::in);
   #if SPAREA == 1
-    fstream GridLMort    ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7darea1.dat", ios::in);
+    fstream GridLMort    ("N:\\Projecten\\SpatialPlanning\\svnnth\\data\\larvalmortality7darea1.dat", ios::in);
   #elif SPAREA == 2
-    fstream GridLMort    ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\larvalmortality7darea2.dat", ios::in); 
+    fstream GridLMort    ("N:\\Projecten\\SpatialPlanning\\svnnth\\data\\larvalmortality7darea2.dat", ios::in); 
   #endif
-  fstream WeekPropFood ("N:\\Projecten\\SpatialPlanning\\svnjjp\\data\\growthgam7d.dat", ios::in);
+  fstream WeekPropFood ("N:\\Projecten\\SpatialPlanning\\svnnth\\data\\growthgam7d.dat", ios::in);
   ofstream mypopulation;
   string popname       ("D:\\mypopulation");
   ofstream myfile;

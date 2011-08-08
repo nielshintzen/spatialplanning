@@ -5,7 +5,7 @@
 #include <cstdlib>
 
 #define POPMAX 5000      // Numbers of individuals to start simulation with maximum on Geertcomputer = 15000000 but the flag -mcmodel=large// 
-#define T_MAX  1000       // Maximum number of years that sim runs // 
+#define T_MAX  10000       // Maximum number of years that sim runs // 
 #define T_STEP 10           // Number of times output is written to disk
 #define A_MAX  780          // Number of timesteps output will be written to disk
 #define P_WRITE 600        // Maximum number of individuals written to disk
@@ -88,7 +88,7 @@ int main (int argc, char* argv[]) {
       ple[i].adultXdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 left or right //
       ple[i].adultYdir[dd] = (char)( (rand()% 11) -5); // Movement of maximum 5 up or down    //
     }
-    ple[i].weight = BORNWGHT;
+    ple[i].weight = BORNWGHT; //reinitialize because of initialisation of movement
     id++;
   }
 
@@ -200,15 +200,17 @@ int main (int argc, char* argv[]) {
 
     //Write output
     for(int iC = 0; iC < C_WRITE; iC++){
-      if ((t==6) ||( (t+A_MAX) % (int)(T_MAX/(T_STEP-1)+(iC*52)) < 52 && t % 52 == 6)){
+      if((t % ((int) (T_MAX / T_STEP))) == (6+iC*52)){    
         int nn  = aliveple;
         int age = ple[nn].age;
         do{ age = ple[nn].age;
         nn--;
         } while ((nn > (aliveple - P_WRITE)) && (age <= 53));
             minid[iC] = ple[nn + 1].id;
+            cout << "minid iC " << iC << " " << minid[iC] << endl;
             maxid[iC] = ple[aliveple - 1].id;
-      } else if ((t < 6 + A_MAX) ||( (t + A_MAX)% (int)(T_MAX/(T_STEP-1)+(iC*52)) < A_MAX +52)){
+            cout << "maxid iC " << iC << " " << maxid[iC] << endl;            
+      } else if (t < (((int) (t / (T_MAX / T_STEP))) * (T_MAX / T_STEP) + (6+iC*52) + A_MAX + 52)){        
           for(int nn = 0; nn < aliveple; nn++){
             if(ple[nn].stage < 4 && (ple[nn].id > minid[iC] & ple[nn].id < maxid[iC])){
               myfile <<t << "," <<       ple[nn].id          << "," << (int) ple[nn].sex          << "," <<       ple[nn].age                           << "," << (int) ple[nn].stage 
