@@ -9,7 +9,7 @@
 #define T_STEP 10           // Number of times output is written to disk
 #define A_MAX  780          // Number of timesteps output will be written to disk
 #define P_WRITE 600        // Maximum number of individuals written to disk
-#define C_WRITE 20          // Maximum number of cohorts written to disk
+#define C_WRITE 10          // Maximum number of cohorts written to disk
 #define SPAREA  2           // Spawning area: 1 = English Channel, 2 = Duitse bocht
 #define MOVJUV  1           // Juveniles to move: 0 = no, 1 = yes
 #define MOVAD   0           // Adults to move: 0 = no, 1 = yes 
@@ -21,8 +21,7 @@
 #define MUT_RATE   0.050    // mutation rate //
 
 unsigned long int id=0;
-unsigned long int minid[C_WRITE];
-unsigned long int maxid[C_WRITE]; //number of cohorts, start and end value
+unsigned long int minid, maxid; //number of cohorts, start and end value
 
 #include "class.h"          //Defines the class of the individual
 #include "outinput.h"       //Functions to deal with input and output
@@ -198,36 +197,32 @@ int main (int argc, char* argv[]) {
     if(t%52 == 5){ larvalmortality (ple, aliveple, theLMort); aliveple = alive2front (ple);} // larvalmortality depends on field, now uniform field where everybody survives //
 //    if(t%52 == 5){ larvalmortality (sol, alivesol, theLMort); alivesol = alive2front (sol);} // larvalmortality depends on field, now uniform field where everybody survives // 
 
-    //Write output
-    for(int iC = 0; iC < C_WRITE; iC++){
-      if((t % ((int) (T_MAX / T_STEP))) == (6+iC*52)){    
+//Write output
+    if (t % (int)(T_MAX/(T_STEP)) < (A_MAX*C_WRITE) && t % A_MAX == 6 ) {
         int nn  = aliveple;
         int age = ple[nn].age;
         do{ age = ple[nn].age;
-        nn--;
+          nn--;
         } while ((nn > (aliveple - P_WRITE)) && (age <= 53));
-            minid[iC] = ple[nn + 1].id;
-            cout << "minid iC " << iC << " " << minid[iC] << endl;
-            maxid[iC] = ple[aliveple - 1].id;
-            cout << "maxid iC " << iC << " " << maxid[iC] << endl;            
-      } else if (t < (((int) (t / (T_MAX / T_STEP))) * (T_MAX / T_STEP) + (6+iC*52) + A_MAX + 52)){        
-          for(int nn = 0; nn < aliveple; nn++){
-            if(ple[nn].stage < 4 && (ple[nn].id > minid[iC] & ple[nn].id < maxid[iC])){
-              myfile <<t << "," <<       ple[nn].id          << "," << (int) ple[nn].sex          << "," <<       ple[nn].age                           << "," << (int) ple[nn].stage 
-                         << "," <<       ple[nn].X           << "," <<       ple[nn].Y            << "," <<       ple[nn].weight       
-                         << "," << (int) ple[nn].juvXdir[(int) (ple[nn].age)]                     << "," << (int) ple[nn].juvYdir[(int) (ple[nn].age)]  
-                         << "," << (int) ple[nn].adultXdir[(t+1)%52]                              << "," << (int) ple[nn].adultYdir[(t+1)%52]           
-                         << "," <<       theFood[(t+1)%52][(int) ple[nn].X][(int) ple[nn].Y][(int) theEnvir]      << "," <<  theTemp[(t+1)%52][(int) ple[nn].X][(int) ple[nn].Y][(int) theEnvir] << endl;
-            }
-          }
+        minid = ple[nn + 1].id;
+        maxid = ple[aliveple - 1].id;
+    } else if (t % (int)(T_MAX/(T_STEP)) < ((A_MAX*C_WRITE)+7) ){
+      for(int nn = 0; nn < aliveple; nn++){
+        if(ple[nn].stage < 4 && (ple[nn].id > minid & ple[nn].id < maxid)){
+          myfile <<t << "," <<       ple[nn].id          << "," << (int) ple[nn].sex          << "," <<       ple[nn].age                           << "," << (int) ple[nn].stage 
+                     << "," <<       ple[nn].X           << "," <<       ple[nn].Y            << "," <<       ple[nn].weight       
+                     << "," << (int) ple[nn].juvXdir[(int) (ple[nn].age)]                     << "," << (int) ple[nn].juvYdir[(int) (ple[nn].age)]  
+                     << "," << (int) ple[nn].adultXdir[(t+1)%52]                              << "," << (int) ple[nn].adultYdir[(t+1)%52]         
+                     << "," <<       theFood[(t+1)%52][(int) ple[nn].X][(int) ple[nn].Y][(int) theEnvir]      << "," <<  theTemp[(t+1)%52][(int) ple[nn].X][(int) ple[nn].Y][(int) theEnvir] << endl;
         }
+      }
     }
 
     //Write output every 15 years (cycle of complete new population)        
     if(t % (A_MAX) == 5){writePopStruct(mypopulation, ple,aliveple,t);}
 
   } //end of timeloop
-
+  
   myfile.close() ; mypopulation.close();
   return 0 ;
 }
