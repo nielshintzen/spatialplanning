@@ -1,4 +1,4 @@
-#define M_B        1.5E-4   // baseline mortality (old) divided by 365 to go to days //
+#define M_B        0.0078   // baseline mortality (old) divided by 52 to go to days //
 #define ETA       -0.280    // exponent of size dependent natural mortality //
 #define F_MAX      0.0      // fishing mortality //
 #define PI         0.5938   // fishing selectivity constant //
